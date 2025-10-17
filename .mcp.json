@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mysql": {
+      "command": "node",
+      "args": ["C:\\MCP-Servers\\mysql-mcp-server\\dist\\index.js"],
+      "env": {
+        "DB_HOST": "211.109.9.105",
+        "DB_PORT": "43306",
+        "DB_USER": "cspms",
+        "DB_PASSWORD": "cspms",
+        "DB_NAME": "cspms"
+      }
+    }
+  }
+}

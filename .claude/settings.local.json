@@ -1,0 +1,62 @@
+{
+  "env": {
+    "LOG_FILE": "C:\\Users\\rioky\\AppData\\Roaming\\MARS\\logs\\**"
+  },
+  "permissions": {
+    "allow": [
+      "Edit(.commit_message.txt)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(dotnet build:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(dotnet run:*)",
+      "Bash(grep:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(mv:*)",
+      "Bash(git checkout:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(dotnet list:*)",
+      "WebSearch",
+      "WebFetch(domain:livecharts.dev)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(ls:*)",
+      "Bash(tail:*)",
+      "Read(C:\\Users\\rioky\\AppData\\Roaming\\MARS\\logs\\**)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:blog.rectorsquid.com)",
+      "Read(C:\\Users\\rioky\\AppData\\Roaming\\MARS\\conf\\**)",
+      "Read(C:\\Users\\rioky\\AppData\\Roaming\\MARS\\**)",
+      "Read(C:\\Users\\rioky\\.cursor\\**)",
+      "Read(C:\\MCP-Servers\\**)",
+      "Bash(npm install)",
+      "Bash(node:*)",
+      "Bash(npm run build:*)",
+      "Bash(test:*)",
+      "mcp__mysql__list_tables",
+      "mcp__mysql__query",
+      "mcp__mysql__get_schema",
+      "Bash(jobs)",
+      "Read(C:\\Users\\rioky\\AppData\\Roaming\\Cursor\\User\\**)",
+      "Bash(git log:*)",
+      "Bash(curl:*)",
+      "Bash(set GIT_TERMINAL_PROMPT=0:*)",
+      "Bash(git -c core.editor=true commit -F .commit_message.txt)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "statusLine": {
+    "type": "command",
+    "command": "python C:\\Users\\rioky\\.claude\\statusline.py"
+  },
+  "alwaysThinkingEnabled": false
+}

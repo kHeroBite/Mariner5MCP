@@ -1,0 +1,6 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\DATA\\VS Project\\c#\\MARS\\claude-statusline.ps1\""
+  }
+}

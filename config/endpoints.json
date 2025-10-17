@@ -1,0 +1,38 @@
+{
+  "collections": {
+    "list": "/collections",
+    "get": "/collections/{collection}",
+    "create": "/collections",
+    "update": "/collections/{collection}",
+    "delete": "/collections/{collection}",
+    "schemaFields": "/collections/{collection}/schema/fields",
+    "queries": "/collections/{collection}/queries"
+  },
+  "search": {
+    "query": "/collections/search"
+  },
+  "index": {
+    "run": "/collections/index",
+    "logs": "/logs/index"
+  },
+  "logs": {
+    "error": "/logs/error"
+  },
+  "server": {
+    "setProps": "/collections/search/setProps",
+    "health": "/setProps"
+  },
+  "dict": {
+    "recommend": "/dics/recommend",
+    "redirect": "/dics/redirect",
+    "stopword": "/dics/stopword",
+    "userCn": "/dics/userCn",
+    "documentRanking": "/dics/documentRanking"
+  },
+  "sim": {
+    "root": "/simulations"
+  },
+  "ext": {
+    "java": "/extensions/java"
+  }
+}
