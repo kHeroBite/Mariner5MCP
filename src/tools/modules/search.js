@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import * as javaWrapper from '../../java-wrapper.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,11 +17,19 @@ const ep = endpointsJson.search;
 export const search = {
   'search.query': {
     handler: async (input) => {
-      const schema = { type:'object', required:['querySet'], properties:{ querySet:{type:'object'} } };
+      const schema = { type:'object', required:['querySet'], properties:{ querySet:{type:'object'}, server: { type: 'string', description: '대상 서버 이름' } } };
       makeValidator(schema)(input);
-      const url = BASE_URL + ep.query;
-      const res = await http.post(url, input);
-      return ok(ep.query, input, res.data);
+      try {
+        const serverName = input?.server || null;
+        const adminClient = connectionManager.getClient(serverName);
+        const result = await javaWrapper.executeSearch(input.querySet);
+        return ok(ep.query, input, result);
+      } catch (error) {
+        // Fallback to REST API
+        const url = BASE_URL + ep.query;
+        const res = await http.post(url, input);
+        return ok(ep.query, input, res.data);
+      }
     }
   }
 };

@@ -48,7 +48,9 @@
       "Bash(curl:*)",
       "Bash(set GIT_TERMINAL_PROMPT=0:*)",
       "Bash(git -c core.editor=true commit -F .commit_message.txt)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:1drv.ms)",
+      "Read(//c/DATA/Project/mariner5/**)"
     ],
     "deny": [],
     "ask": []

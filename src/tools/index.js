@@ -9,6 +9,8 @@ import { sim } from './modules/sim.js';
 import { ext } from './modules/ext.js';
 import { codegen } from './modules/codegen.js';
 import { search } from './modules/search.js';
+import { schemaFromSql } from './modules/schema-from-sql.js';
+import { servers } from './modules/servers.js';
 
 export const tools = {
   ...collections,
@@ -21,5 +23,7 @@ export const tools = {
   ...sim,
   ...ext,
   ...codegen,
-  ...search
+  ...search,
+  ...schemaFromSql,
+  ...servers
 };

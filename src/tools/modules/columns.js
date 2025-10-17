@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,6 +23,7 @@ const addSchema = {
     analyzer: { type: 'string' },
     stored: { type: 'boolean' },
     indexed: { type: 'boolean' },
+    server: { type: 'string', description: '대상 서버 이름' },
     options: { type: 'object' }
   }
 };
@@ -31,20 +33,23 @@ const updateSchema = {
   properties: {
     collection: { type: 'string' },
     field: { type: 'string' },
+    server: { type: 'string', description: '대상 서버 이름' },
     changes: { type: 'object' }
   }
 };
 const deleteSchema = { type:'object', required:['collection','field'], properties:{
-  collection:{type:'string'}, field:{type:'string'}
+  collection:{type:'string'}, field:{type:'string'}, server: { type: 'string', description: '대상 서버 이름' }
 }};
 const listSchema = { type:'object', required:['collection'], properties:{
-  collection:{type:'string'}
+  collection:{type:'string'}, server: { type: 'string', description: '대상 서버 이름' }
 }};
 
 export const columns = {
   'columns.add': {
     handler: async (input) => {
       makeValidator(addSchema)(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.schemaFields, { collection: input.collection });
       const res = await http.post(url, {
         field: input.field,
@@ -60,6 +65,8 @@ export const columns = {
   'columns.update': {
     handler: async (input) => {
       makeValidator(updateSchema)(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.schemaFields, { collection: input.collection });
       const res = await http.put(url, { field: input.field, changes: input.changes||{} });
       return ok(ep.schemaFields, input, res.data);
@@ -68,6 +75,8 @@ export const columns = {
   'columns.delete': {
     handler: async (input) => {
       makeValidator(deleteSchema)(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.schemaFields, { collection: input.collection });
       const res = await http.delete(url, { data: { field: input.field } });
       return ok(ep.schemaFields, input, res.data);
@@ -76,6 +85,8 @@ export const columns = {
   'columns.list': {
     handler: async (input) => {
       makeValidator(listSchema)(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.schemaFields, { collection: input.collection });
       const res = await http.get(url);
       return ok(ep.schemaFields, input, res.data);

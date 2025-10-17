@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,21 +16,29 @@ const d = endpointsJson.dict;
 function crud(path, nameProp='name') {
   return {
     create: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + path;
       const res = await http.post(url, input);
       return ok(path, input, res.data);
     },
     update: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + path;
       const res = await http.put(url, input);
       return ok(path, input, res.data);
     },
     delete: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + path;
       const res = await http.delete(url, { data: input });
       return ok(path, input, res.data);
     },
     list: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + path;
       const res = await http.get(url, { params: input||{} });
       return ok(path, input, res.data);

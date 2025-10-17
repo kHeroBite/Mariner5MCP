@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,6 +16,8 @@ const ep = endpointsJson.logs;
 export const logs = {
   'logs.error.get': {
     handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + ep.error;
       const res = await http.get(url, { params: input||{} });
       return ok(ep.error, input, res.data);
@@ -22,20 +25,26 @@ export const logs = {
   },
   'logs.error.delete': {
     handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + ep.error + '/delete';
       const res = await http.post(url, { data: input?.data||[] });
       return ok(ep.error + '/delete', input, res.data);
     }
   },
   'logs.error.deleteAll': {
-    handler: async () => {
+    handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + ep.error + '/deleteAll';
       const res = await http.post(url);
-      return ok(ep.error + '/deleteAll', {}, res.data);
+      return ok(ep.error + '/deleteAll', input||{}, res.data);
     }
   },
   'logs.index.get': {
     handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + '/logs/index';
       const res = await http.get(url, { params: input||{} });
       return ok('/logs/index', input, res.data);

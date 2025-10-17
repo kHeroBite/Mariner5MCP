@@ -1,0 +1,26 @@
+{
+  "servers": {
+    "local": {
+      "host": "localhost",
+      "port": 5555,
+      "description": "로컬 개발 서버"
+    },
+    "dev": {
+      "host": "192.168.1.100",
+      "port": 5555,
+      "description": "개발 환경 Mariner5 서버"
+    },
+    "staging": {
+      "host": "10.0.1.50",
+      "port": 5555,
+      "description": "스테이징 환경 Mariner5 서버"
+    },
+    "prod": {
+      "host": "10.0.0.50",
+      "port": 5555,
+      "description": "운영 환경 Mariner5 서버"
+    }
+  },
+  "default": "local",
+  "comment": "각 환경별 Mariner5 서버를 등록합니다. 실제 IP/포트로 수정해서 사용하세요."
+}

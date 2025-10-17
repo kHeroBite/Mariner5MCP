@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -144,8 +145,11 @@ public class WebController {
 export const codegen = {
   'codegen.page.java.create': {
     handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const schema = { type:'object', required:['artifactId','groupId','package','collection','endpoints'], properties:{
         artifactId:{type:'string'}, groupId:{type:'string'}, package:{type:'string'}, collection:{type:'string'},
+        server: { type: 'string', description: '대상 서버 이름' },
         endpoints:{type:'object'}
       }};
       makeValidator(schema)(input);
@@ -156,12 +160,16 @@ export const codegen = {
   },
   'codegen.page.java.preview': {
     handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       return ok('codegen.page.java.preview', input, { note: 'use create to get file map' });
     }
   },
   'codegen.page.java.params': {
-    handler: async () => {
-      return ok('codegen.page.java.params', {}, {
+    handler: async (input) => {
+      const serverName = input?.server || null;
+      const adminClient = connectionManager.getClient(serverName);
+      return ok('codegen.page.java.params', input||{}, {
         required: ['artifactId','groupId','package','collection','endpoints.search','endpoints.index']
       });
     }

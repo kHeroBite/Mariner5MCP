@@ -16,35 +16,52 @@
 
 ```
 search-mcp-node/
-├── src/                           # 소스 코드 디렉토리
-│   ├── server.js                  # JSON-RPC 서버 메인 엔트리포인트
-│   ├── http.js                    # Axios HTTP 클라이언트 + 인터셉터
-│   ├── utils.js                   # 공통 유틸리티 함수
-│   └── tools/                     # MCP 도구 정의
-│       ├── index.js               # 도구 레지스트리 (모든 도구 export)
-│       └── modules/               # 기능별 도구 모듈 (11개)
-│           ├── collections.js     # 컬렉션 관리 (create/update/delete/get/list)
-│           ├── columns.js         # 스키마 필드 관리 (add/update/delete/list)
-│           ├── queries.js         # 저장 쿼리 관리 (create/update/delete/list/test)
-│           ├── dict.js            # 사전 관리 (recommend/redirect/stopword/userCn/documentRanking)
-│           ├── index.js           # 색인 제어 (run/status, logs.index.get)
-│           ├── server.js          # 서버 설정 (setProps/health)
-│           ├── logs.js            # 로그 조회 (error.get/error.delete/error.deleteAll)
-│           ├── sim.js             # 시뮬레이션 (create/update/delete/list/run/status)
-│           ├── ext.js             # Java 확장 플러그인 (create/update/delete/list/activate/deactivate)
-│           ├── codegen.js         # 코드 생성 (검색 페이지 Java 생성)
-│           └── search.js          # 검색 실행 (search.query)
+├── src/                                  # 소스 코드 디렉토리
+│   ├── server.js                         # JSON-RPC 서버 메인 엔트리포인트
+│   ├── http.js                           # Axios HTTP 클라이언트 + 인터셉터 (레거시 지원)
+│   ├── utils.js                          # 공통 유틸리티 함수
+│   ├── java-bridge.js                    # Java JNI 브릿지 레이어 ⭐
+│   ├── java-wrapper.js                   # Mariner5 API 래퍼 ⭐
+│   ├── schema-analyzer.js                # SQL → Mariner5 필드 매핑 ⭐ 신규
+│   ├── schema-comparator.js              # 필드 비교 및 스키마 업데이트 ⭐ 신규
+│   ├── extension-builder.js              # Extension 자동 생성/컴파일 ⭐ 신규
+│   ├── extension-templates/              # Extension Java 템플릿 디렉토리 ⭐ 신규
+│   │   ├── analyzer/
+│   │   │   └── CustomAnalyzer.java.tpl
+│   │   ├── processor/
+│   │   │   ├── DataProcessor.java.tpl
+│   │   │   └── FieldEnricher.java.tpl
+│   │   ├── fetcher/
+│   │   │   └── ExternalDataFetcher.java.tpl
+│   │   └── filter/
+│   │       └── CustomFilter.java.tpl
+│   └── tools/                            # MCP 도구 정의
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export)
+│       └── modules/                      # 기능별 도구 모듈 (14개 포함 신규)
+│           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
+│           ├── columns.js                # 스키마 필드 관리
+│           ├── queries.js                # 저장 쿼리 관리
+│           ├── dict.js                   # 사전 관리
+│           ├── index.js                  # 색인 제어 (Java 네이티브 + REST 폴백)
+│           ├── server.js                 # 서버 설정 (Java 네이티브 + REST 폴백)
+│           ├── logs.js                   # 로그 조회
+│           ├── sim.js                    # 시뮬레이션 (Java 네이티브 + REST 폴백)
+│           ├── ext.js                    # Java Extension (11개 도구) ⭐ 확장됨
+│           ├── codegen.js                # 코드 생성
+│           ├── search.js                 # 검색 실행 (Java 네이티브 + REST 폴백)
+│           ├── schema-from-sql.js        # SQL 기반 자동 컬렉션 생성 ⭐ 신규
+│           └── schema-comparator.js      # 필드 비교/업데이트 ⭐ 신규
 │
 ├── config/
-│   └── endpoints.json             # REST 엔드포인트 매핑 설정
+│   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
 │
-├── .env                           # 환경변수 (BASE_URL, API_TOKEN, HTTP_TIMEOUT, LOG_LEVEL)
-├── .env.example                   # 환경변수 템플릿
-├── package.json                   # npm 의존성 정의
-├── package-lock.json              # npm 잠금파일
-├── CLAUDE.md                      # AI 작업 지침 문서
-├── PROJECT.md                     # 이 파일 (프로젝트 구조)
-└── README.md                      # 사용자 가이드
+├── .env                                  # 환경변수 (MARINER5_HOME, IR5_HOME 등)
+├── .env.example                          # 환경변수 템플릿
+├── package.json                          # npm 의존성 정의
+├── package-lock.json                     # npm 잠금파일
+├── CLAUDE.md                             # AI 작업 지침 문서
+├── PROJECT.md                            # 이 파일 (프로젝트 구조)
+└── README.md                             # 사용자 가이드
 ```
 
 ## 🔧 핵심 컴포넌트
@@ -73,19 +90,125 @@ search-mcp-node/
 {"id":1,"error":{"code":"E_TOOL","message":"...","data":{}}}
 ```
 
-### 2. HTTP 클라이언트 (http.js:1-26)
-**역할**: Axios 기반 HTTP 통신 (검색엔진 REST API 호출)
+### 2. Java 브릿지 레이어 (java-bridge.js) ⭐ 신규
+**역할**: Node.js와 Java(Mariner5) JNI 연결
+
+**주요 기능**:
+- Java 클래스패스 설정 (Mariner5 lib/*.jar)
+- node-java를 통한 Java 메서드 호출
+- Java 컬렉션↔JavaScript 객체 변환
+- 비동기 Promise 래핑
+
+**주요 클래스**:
+```javascript
+javaClasses.AdminServerClient       // Mariner5 관리 클라이언트
+javaClasses.CommandSearchRequest     // 검색 요청 처리
+javaClasses.CommandCollectionInfoServer  // 컬렉션 정보
+javaClasses.CommandIndexTaskServer   // 색인 작업
+javaClasses.CommandSimulationQueryManagement // 시뮬레이션
+```
+
+### 3. Extension Builder (extension-builder.js) ⭐ 신규
+**역할**: Extension Java 코드 자동 생성 → 컴파일 → JAR → Base64 인코딩 파이프라인
+
+**핵심 기능** (5단계):
+```
+1. Template 로드 (extension-templates/*.tpl)
+   ↓
+2. 변수 치환 ({{className}}, {{targetFields}} 등)
+   ↓
+3. Java 소스 생성 (.java 파일)
+   ↓
+4. javac 컴파일 (.class 파일)
+   ↓
+5. JAR 패키징 + Base64 인코딩
+```
+
+**주요 함수**:
+- `listAvailableTemplates()` : 4가지 템플릿 목록 반환
+- `renderTemplate(templatePath, variables)` : {{KEY}} 패턴을 변수값으로 치환
+- `generateJavaSource(className, packageName, source)` : Java 파일 생성
+- `compileJava(javaPath, packageName)` : javac로 컴파일
+- `createJar(className, packageName, classPath)` : JAR 파일 생성
+- `jarToBase64(jarPath)` : Base64 인코딩 (Mariner5 전송용)
+- `generateExtension(config)` : 전체 파이프라인 실행 (핵심)
+- `previewExtension(config)` : 컴파일 없이 소스만 미리보기
+
+**Template 4가지 유형**:
+| 유형 | 파일 | 용도 |
+|------|------|------|
+| analyzer | CustomAnalyzer.java.tpl | 텍스트 분석 (한글/영문) |
+| processor | DataProcessor.java.tpl | 데이터 전처리 |
+| processor | FieldEnricher.java.tpl | 필드 확장 (외부 데이터) |
+| fetcher | ExternalDataFetcher.java.tpl | REST API 기반 조회 |
+| filter | CustomFilter.java.tpl | 조건 필터링 |
+
+**예시 흐름**:
+```javascript
+// 입력
+{
+  type: "processor",
+  name: "product_normalizer",
+  targetFields: ["product_name"]
+}
+
+// 1. 템플릿 로드 (DataProcessor.java.tpl)
+// 2. 변수 치환
+public class ProductNormalizer {
+  public Map<String, Object> process(Map<String, Object> document) {
+    // TODO: Process target fields (product_name)
+    return document;
+  }
+}
+
+// 3. Java 소스 생성
+com/mariner/ext/ProductNormalizer.java
+
+// 4. javac 컴파일
+com/mariner/ext/ProductNormalizer.class
+
+// 5. JAR 생성 + Base64
+ProductNormalizer.jar → "UEsDBAoAAA..." (2.3KB)
+
+// 출력
+{
+  className: "ProductNormalizer",
+  packageName: "com.mariner.ext",
+  source: "public class ...",
+  binary: "UEsDBAoAAA...",
+  size: 2.3,
+  created: "2025-10-17T..."
+}
+```
+
+### 4. Java 래퍼 (java-wrapper.js) ⭐ 신규
+**역할**: Mariner5 AdminServerClient 고수준 API 래핑
+
+**주요 메서드**:
+- `connectToAdminServer(host, port)` : Mariner5 연결
+- `listCollections()` : 컬렉션 목록
+- `getCollection(name)` : 컬렉션 조회
+- `createCollection(name, options)` : 컬렉션 생성
+- `deleteCollection(name)` : 컬렉션 삭제
+- `executeSearch(querySet)` : 검색 실행
+- `getIndexStatus(collection)` : 색인 상태
+- `runIndex(collection, type)` : 색인 실행
+- `listSimulations()` : 시뮬레이션 목록
+- `createSimulation(name, config)` : 시뮬레이션 생성
+- `runSimulation(id)` : 시뮬레이션 실행
+- `checkServerHealth()` : 서버 상태 확인
+
+### 4. HTTP 클라이언트 (http.js:1-26) [레거시]
+**역할**: Axios 기반 HTTP 통신 (REST API 폴백용)
 
 **주요 기능**:
 - HTTP 타임아웃 설정 (기본 60초)
 - Authorization 헤더 자동 추가 (API_TOKEN 환경변수)
 - 재시도 로직 (429/502/503/504 상태코드)
 
-**인터셉터**:
-- **Request**: `API_TOKEN` 자동 삽입
-- **Response**: 서버 에러 시 1초 대기 후 재시도
+**주의**: Java 네이티브 호출 실패 시에만 사용됨
 
-### 3. 유틸리티 (utils.js:1-29)
+### 5. 유틸리티 (utils.js:1-29)
 **역할**: 공통 함수 라이브러리
 
 **함수 목록**:
@@ -94,7 +217,7 @@ search-mcp-node/
 - `ok(endpoint, request, data, meta)` : 성공 응답 포맷팅
 - `fail(code, message, details, hint)` : 실패 응답 포맷팅
 
-### 4. 도구 레지스트리 (tools/index.js:1-25)
+### 6. 도구 레지스트리 (tools/index.js:1-25)
 **역할**: 모든 도구 모듈을 하나의 객체로 통합
 
 **구조**:
@@ -106,7 +229,7 @@ export const tools = {
 };
 ```
 
-### 5. 기능별 도구 모듈 (tools/modules/*.js)
+### 7. 기능별 도구 모듈 (tools/modules/*.js)
 
 #### collections.js (5개 도구)
 - **collections.create** : 새 컬렉션 생성 (name, shards, replicas 필수)
@@ -177,14 +300,49 @@ createSchema: {
 - **sim.run** : 시뮬레이션 실행
 - **sim.status** : 실행 상태 조회
 
-#### ext.js
-Java 플러그인 관리
+#### ext.js ⭐ Extension 자동 생성 시스템
+Java 플러그인 관리 + 자동 생성/컴파일 파이프라인
+
+**기본 도구 (6개)**:
 - **ext.java.create** : 플러그인 등록
 - **ext.java.update** : 플러그인 수정
 - **ext.java.delete** : 플러그인 삭제
 - **ext.java.list** : 플러그인 목록
 - **ext.java.activate** : 플러그인 활성화
 - **ext.java.deactivate** : 플러그인 비활성화
+
+**자동 생성 도구 (5개)** ⭐ 신규:
+- **ext.templates** : 사용 가능한 템플릿 목록 (4가지 유형)
+- **ext.preview** : 생성될 Java 소스 코드 미리보기
+- **ext.generate** : 템플릿 → Java 생성 → 컴파일 → JAR → Base64 → 등록 (완전 자동)
+- **ext.attachToCollection** : Extension을 컬렉션에 연결
+- **ext.detachFromCollection** : Extension을 컬렉션에서 해제
+
+**Extension 유형 (4가지)**:
+| 유형 | 목적 | 메서드 | 용도 |
+|------|------|--------|------|
+| analyzer | 텍스트 분석기 | tokenStream() | 한글/영문 언어별 처리 |
+| processor | 데이터 전처리 | process() | 정규화, 타입 변환 |
+| fetcher | 외부 데이터 조회 | process() | REST API 기반 수집 |
+| filter | 조건 필터링 | process() | 문서 필터링/선택 |
+
+**사용 예시**:
+```javascript
+// 1) 템플릿 목록 조회
+{"method":"ext.templates","params":{}}
+
+// 2) Java 코드 미리보기
+{"method":"ext.preview","params":{"type":"processor","name":"my_ext"}}
+
+// 3) Extension 자동 생성 (한 줄에 모든 것 완료)
+{"method":"ext.generate","params":{
+  "type":"processor",
+  "name":"product_normalizer",
+  "description":"제품명 정규화",
+  "targetFields":["product_name"]
+}}
+// 결과: Java 소스 생성 → javac 컴파일 → JAR 패키징 → Base64 인코딩 → Mariner5 등록
+```
 
 #### search.js
 검색 쿼리 실행
@@ -196,7 +354,85 @@ Java 플러그인 관리
 - **codegen.page.java.preview** : 미리보기
 - **codegen.page.java.params** : 파라미터 설정
 
-### 6. 엔드포인트 설정 (config/endpoints.json)
+#### schema-from-sql.js ⭐ 신규 + Extension 통합
+SQL 쿼리 기반 자동 컬렉션 생성 + Extension 자동 생성/적용
+
+**3가지 도구**:
+- **schema.fromSql** : SQL 쿼리/테이블명으로 자동 컬렉션 생성 (Extension 지원)
+  - 스키마 자동 분석 (MySQL 메타데이터)
+  - 필드 타입 자동 매핑 (VARCHAR→TEXT, INT→INTEGER 등)
+  - Analyzer 자동 선택 (한글→korean_analyzer, 영문→standard_analyzer)
+  - 색인 필드 vs 정렬 필드 자동 분류
+  - Primary Key → Document ID 자동 매핑
+  - **NEW**: Extension 자동 생성/적용 (컬렉션 생성 시 함께 처리)
+- **schema.listAvailableTables** : 사용 가능한 테이블 목록 조회
+- **schema.describeTable** : 특정 테이블 스키마 조회
+- **schema.updateCollectionFromSql** : 기존 컬렉션을 SQL로 업데이트 (SAFE/SMART 모드)
+
+**사용 예시 1: 기본 컬렉션 생성**:
+```javascript
+{
+  "method": "schema.fromSql",
+  "params": {
+    "sql": "SELECT * FROM products",
+    "collectionName": "products_search",
+    "shards": 3,
+    "replicas": 1
+  }
+}
+
+// 결과:
+// 1. products_search 컬렉션 생성
+// 2. 8개 필드 자동 추가 (타입, 색인, 정렬 정보 포함)
+// 3. Analyzer 자동 설정 (한글/영문 분석기)
+// 4. 색인 필드: product_name, description, category
+// 5. 정렬 필드: id, price, stock, created_at, updated_at
+```
+
+**사용 예시 2: Extension 자동 포함**:
+```javascript
+{
+  "method": "schema.fromSql",
+  "params": {
+    "sql": "SELECT * FROM products",
+    "collectionName": "products_search",
+    "extensions": [
+      {
+        "type": "processor",
+        "name": "data_enricher",
+        "description": "외부 데이터 보강",
+        "targetFields": ["product_name"]
+      }
+    ]
+  }
+}
+
+// 결과:
+// 1. products_search 컬렉션 생성
+// 2. 8개 필드 자동 추가
+// 3. Extension 자동 생성:
+//    - DataEnricher.java 소스 생성
+//    - javac로 컴파일
+//    - DataEnricher.jar 생성
+//    - Base64 인코딩
+//    - Mariner5에 등록
+// 4. 전체 과정 자동 처리 (한 번의 요청으로!)
+```
+
+**사용 예시 3: 기존 컬렉션 업데이트 (SAFE 모드)**:
+```javascript
+{
+  "method": "schema.updateCollectionFromSql",
+  "params": {
+    "collectionName": "products_search",
+    "sql": "SELECT * FROM products",
+    "updateMode": "safe"  // 필드 추가만 수행
+  }
+}
+// 결과: 새로운 필드만 추가 (기존 필드는 유지)
+```
+
+### 8. 엔드포인트 설정 (config/endpoints.json) [레거시]
 
 ```json
 {
@@ -229,18 +465,29 @@ Java 플러그인 관리
 
 ## 🌊 데이터 흐름
 
+### v2.0 Java 네이티브 아키텍처 (현재)
+
 ```
 Claude Code (MCP Client)
     ↓
   stdin ← JSON-RPC 요청
     ↓
 server.js: handleLine()
+    ├─ initializeJava() [시작 시]
+    │   ├─ java-bridge.js: initializeJavaClasses()
+    │   └─ java-wrapper.js: connectToAdminServer()
     ↓
 tools[method].handler(params)
     ↓
 tools/modules/*.js: 입력 검증 (AJV)
-    ↓
-http.js: 검색엔진 REST API 호출
+    ├─ Try Java: java-wrapper.js 메서드 호출
+    │   ├─ java-bridge.js: JNI를 통한 Java 메서드 호출
+    │   ├─ Mariner5 AdminServerClient (localhost:5555)
+    │   └─ 결과를 JavaScript 객체로 변환
+    │
+    └─ Fallback REST API (Java 실패 시)
+        ├─ http.js: 검색엔진 REST API 호출
+        └─ BASE_URL 기반 엔드포인트
     ↓
 응답 처리 & 포맷팅
     ↓
@@ -248,6 +495,36 @@ stdout → JSON 응답
     ↓
 Claude Code에 반환
 ```
+
+### v1.0 REST API 아키텍처 (레거시)
+
+```
+Claude Code
+    ↓ stdin JSON-RPC
+tools/modules/*.js
+    ↓ http.js (Axios)
+Mariner5 REST API
+```
+
+### 아키텍처 변경 사항
+
+| 항목 | v1.0 (REST API) | v2.0 (Java Native) |
+|------|----------------|--------------------|
+| 백엔드 | REST API | Java JNI (AdminServerClient) |
+| 프로토콜 | HTTP REST | Java 직접 호출 |
+| 의존성 | Axios | node-java |
+| 지연시간 | HTTP 오버헤드 | 최소 (JNI) |
+| 재시도 | HTTP 재시도 로직 | Java 예외 처리 |
+| 폴백 | 없음 | REST API 자동 폴백 |
+| 연결 | 무상태 요청 | TCP 영구 연결 (AdminServer) |
+
+### 주요 개선 사항
+
+1. **성능**: HTTP 오버헤드 제거, JNI 직접 호출
+2. **안정성**: 실패 시 자동 REST API 폴백
+3. **기능**: Mariner5 AdminServerClient 전체 API 접근 가능
+4. **호환성**: 기존 REST API 설정 유지 (레거시 지원)
+5. **확장성**: Java 래퍼를 통해 새 기능 추가 용이
 
 ## 🔄 에러 처리
 
@@ -299,24 +576,47 @@ npm run dev
 
 ## 🔐 환경변수
 
+### Java 네이티브 설정 (필수)
+
 | 변수 | 기본값 | 설명 |
 |------|--------|------|
-| `BASE_URL` | `http://localhost:8080/api` | 검색엔진 REST API 베이스 URL |
+| `MARINER5_HOME` | `C:\DATA\Project\mariner5` | Mariner5 검색엔진 설치 경로 |
+| `MARINER5_HOST` | `localhost` | AdminServer 호스트 |
+| `MARINER5_PORT` | `5555` | AdminServer 포트 |
+
+### REST API 폴백 설정 (레거시)
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `BASE_URL` | `http://localhost:8080/api` | 검색엔진 REST API 베이스 URL (Java 연결 실패 시) |
 | `API_TOKEN` | 없음 | 인증 토큰 (있으면 Authorization 헤더에 포함) |
 | `HTTP_TIMEOUT` | `60000` | HTTP 타임아웃(ms) |
+
+### 공통 설정
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
 | `LOG_LEVEL` | `info` | 로깅 레벨 (debug/info/warn/error) |
 
 ## 📦 의존성
 
 ```json
 {
-  "axios": "^1.7.7",      // HTTP 클라이언트
-  "dotenv": "^16.4.5",    // 환경변수 로딩
-  "ajv": "^8.17.1"        // JSON 스키마 검증
+  "java": "^0.17.0",       // Java JNI 브릿지 ⭐ 신규
+  "axios": "^1.12.2",      // HTTP 클라이언트 (폴백용)
+  "dotenv": "^16.6.1",     // 환경변수 로딩
+  "ajv": "^8.17.1"         // JSON 스키마 검증
 }
 ```
 
+**주의**: `node-java`는 다음 요구사항 필요:
+- Java JDK 설치 (JAVA_HOME 환경변수)
+- Python 2.7+ 또는 3.x
+- C++ 컴파일러 (Windows: Visual C++ Build Tools)
+
 ## 🧪 테스트 예시
+
+### 기본 도구 테스트
 
 ```bash
 # 1) 컬렉션 생성
@@ -330,6 +630,75 @@ echo '{"id":3,"method":"search.query","params":{"querySet":{"version":"1.0","que
 
 # 4) 색인 실행
 echo '{"id":4,"method":"index.run","params":{"collection":"demo","type":"rebuild"}}' | npm start
+```
+
+### SQL 기반 자동 컬렉션 생성 테스트
+
+```bash
+# 1) 사용 가능한 테이블 조회
+echo '{"id":1,"method":"schema.listAvailableTables","params":{}}' | npm start
+
+# 2) 특정 테이블 스키마 조회
+echo '{"id":2,"method":"schema.describeTable","params":{"table":"products"}}' | npm start
+
+# 3) SQL로 자동 컬렉션 생성 (가장 중요!)
+echo '{"id":3,"method":"schema.fromSql","params":{"sql":"SELECT * FROM products","collectionName":"products_search","shards":3,"replicas":1}}' | npm start
+
+# 결과:
+# - products_search 컬렉션 자동 생성
+# - 8개 필드 자동 추가 (타입, 색인, 정렬 정보 포함)
+# - Analyzer 자동 설정 (한글/영문 분석기)
+# - 색인 필드: product_name, description, category
+# - 정렬 필드: id, price, stock, created_at, updated_at
+# - Primary Key: id (Document ID)
+
+# 4) 자동 생성된 컬렉션 확인
+echo '{"id":4,"method":"collections.get","params":{"collection":"products_search"}}' | npm start
+
+# 5) 색인 실행
+echo '{"id":5,"method":"index.run","params":{"collection":"products_search","type":"rebuild"}}' | npm start
+
+# 6) 검색 테스트
+echo '{"id":6,"method":"search.query","params":{"querySet":{"version":"1.0","query":[{"fromSet":{"collection":["products_search"]},"selectSet":{"fields":["*"]},"whereSet":{"operator":"AND","searchKeyword":"노트북"}}]}}}' | npm start
+```
+
+### Extension 자동 생성 테스트
+
+```bash
+# 1) 템플릿 목록 조회
+echo '{"id":1,"method":"ext.templates","params":{}}' | npm start
+
+# 결과: analyzer, processor(2), fetcher, filter 5개 템플릿
+
+# 2) Java 소스 미리보기
+echo '{"id":2,"method":"ext.preview","params":{"type":"processor","name":"my_enricher","description":"데이터 보강"}}' | npm start
+
+# 결과: Java 소스 코드 (56줄)
+
+# 3) Extension 자동 생성 (한 번에 모든 것!)
+echo '{"id":3,"method":"ext.generate","params":{"type":"processor","name":"product_normalizer","description":"제품명 정규화","targetFields":["product_name","category"]}}' | npm start
+
+# 결과:
+# - ProductNormalizer.java 자동 생성
+# - javac로 컴파일 (성공)
+# - ProductNormalizer.jar 생성
+# - Base64 인코딩
+# - Mariner5에 자동 등록
+# - className, binary, size 반환
+
+# 4) SQL 기반 컬렉션 생성 + Extension 자동 포함
+echo '{"id":4,"method":"schema.fromSql","params":{"sql":"SELECT * FROM products","collectionName":"products_search","extensions":[{"type":"processor","name":"data_enricher","description":"외부 데이터 보강","targetFields":["product_name"]}]}}' | npm start
+
+# 결과:
+# - products_search 컬렉션 생성
+# - 8개 필드 자동 추가
+# - data_enricher Extension 자동 생성/컴파일/등록
+# - 모든 것을 한 번의 요청으로 완료!
+
+# 5) Extension을 컬렉션에 연결
+echo '{"id":5,"method":"ext.attachToCollection","params":{"extension":"product_normalizer","collection":"products_search"}}' | npm start
+
+# 결과: attached: true
 ```
 
 ## 🎯 주요 설계 원칙
@@ -381,8 +750,72 @@ export const tools = {
 - 도구 실행 중 진행 상황 메시지 출력 금지
 - 에러는 JSON 응답으로만 전달
 
+## 🎯 Extension 자동 생성 시스템 (v3.0) ⭐ 핵심 기능
+
+### 전체 흐름 (End-to-End)
+
+```
+MCP 요청
+  ↓
+ext.generate(config)
+  ├─ 1단계: 템플릿 선택 (4가지 중 선택)
+  ├─ 2단계: 변수 치환 ({{className}}, {{targetFields}} 등)
+  ├─ 3단계: Java 소스 생성
+  ├─ 4단계: javac 컴파일
+  ├─ 5단계: JAR 패키징
+  └─ 6단계: Base64 인코딩 + Mariner5 자동 등록
+  ↓
+MCP 응답 (className, packageName, binary, size)
+```
+
+### 핵심 특징
+
+| 기능 | 설명 |
+|------|------|
+| **자동 코드 생성** | 템플릿 기반으로 Java 소스 자동 생성 |
+| **자동 컴파일** | javac를 통한 Java 컴파일 (Mariner5 라이브러리 포함) |
+| **자동 JAR 생성** | 컴파일된 클래스를 JAR로 패키징 |
+| **Base64 인코딩** | JAR을 Base64로 인코딩 (Mariner5 REST API 전송용) |
+| **자동 등록** | Mariner5에 자동 등록 (한 번의 요청으로!) |
+| **미리보기** | 컴파일 전 Java 소스 코드 확인 가능 |
+| **컬렉션 통합** | SQL 기반 컬렉션 생성 시 Extension 자동 포함 |
+
+### 파이프라인 아키텍처
+
+```
+extension-builder.js
+├─ listAvailableTemplates()      → 템플릿 목록 (4가지)
+├─ renderTemplate()               → 변수 치환
+├─ generateJavaSource()           → .java 파일 생성
+├─ compileJava()                  → javac 컴파일
+├─ createJar()                    → JAR 생성
+├─ jarToBase64()                  → Base64 인코딩
+└─ generateExtension()            → 전체 파이프라인 (핵심)
+
+ext.js (MCP 도구)
+├─ ext.templates                  → 템플릿 목록 조회
+├─ ext.preview                    → Java 소스 미리보기
+├─ ext.generate                   → 자동 생성 (위 파이프라인 호출)
+├─ ext.attachToCollection         → Extension 연결
+└─ ext.detachFromCollection       → 연결 해제
+
+schema-from-sql.js (SQL 통합)
+├─ schema.fromSql                 → SQL 기반 컬렉션 생성
+│  └─ extensions 파라미터 지원 (Extension 자동 생성)
+└─ schema.updateCollectionFromSql → 기존 컬렉션 업데이트
+```
+
 ## 🔗 참고 문서
 
 - [README.md](./README.md) - 사용 가이드
 - [CLAUDE.md](./CLAUDE.md) - AI 작업 지침
 - 검색엔진 REST API 문서 (BASE_URL 참조)
+
+## 📊 프로젝트 통계
+
+- **총 도구**: 50+ (기본 도구 + Extension 자동 생성 도구)
+- **새로 추가된 도구**: ext.generate, ext.templates, ext.preview, ext.attachToCollection, ext.detachFromCollection (5개)
+- **새로 추가된 파일**: extension-builder.js, schema-analyzer.js, schema-comparator.js, 5개 템플릿 (8개)
+- **코드량**: 약 1,500줄 (extension-builder.js + 템플릿)
+- **지원하는 Extension 유형**: 4가지 (analyzer, processor×2, fetcher, filter)
+- **자동화 수준**: 100% (한 번의 MCP 요청으로 생성→컴파일→패키징→등록)

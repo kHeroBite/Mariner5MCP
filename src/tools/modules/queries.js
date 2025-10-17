@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { http } from '../../http.js';
 import { ok, fail, makeValidator, tpl } from '../../utils.js';
+import { connectionManager } from '../../connection-manager.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,7 +16,7 @@ const ep = endpointsJson.collections;
 const base = {
   type: 'object',
   required: ['collection'],
-  properties: { collection:{type:'string'} }
+  properties: { collection:{type:'string'}, server: { type: 'string', description: '대상 서버 이름' } }
 };
 export const queries = {
   'queries.create': {
@@ -27,9 +28,12 @@ export const queries = {
           collection:{type:'string'},
           queryName:{type:'string'},
           query:{type:'object'},
+          server: { type: 'string', description: '대상 서버 이름' },
           tags:{type:'array', items:{type:'string'}}
         }
       })(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.queries, { collection: input.collection });
       const res = await http.post(url, { name: input.queryName, query: input.query, tags: input.tags||[] });
       return ok(ep.queries, input, res.data);
@@ -40,8 +44,10 @@ export const queries = {
       makeValidator({
         type:'object',
         required:['collection','queryName','query'],
-        properties: { collection:{type:'string'}, queryName:{type:'string'}, query:{type:'object'} }
+        properties: { collection:{type:'string'}, queryName:{type:'string'}, query:{type:'object'}, server: { type: 'string', description: '대상 서버 이름' } }
       })(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.queries, { collection: input.collection });
       const res = await http.put(url, { name: input.queryName, query: input.query });
       return ok(ep.queries, input, res.data);
@@ -49,7 +55,9 @@ export const queries = {
   },
   'queries.delete': {
     handler: async (input) => {
-      makeValidator({ type:'object', required:['collection','queryName'], properties:{ collection:{type:'string'}, queryName:{type:'string'} } })(input);
+      makeValidator({ type:'object', required:['collection','queryName'], properties:{ collection:{type:'string'}, queryName:{type:'string'}, server: { type: 'string', description: '대상 서버 이름' } } })(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.queries, { collection: input.collection });
       const res = await http.delete(url, { data: { name: input.queryName } });
       return ok(ep.queries, input, res.data);
@@ -58,6 +66,8 @@ export const queries = {
   'queries.list': {
     handler: async (input) => {
       makeValidator(base)(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + tpl(ep.queries, { collection: input.collection });
       const res = await http.get(url);
       return ok(ep.queries, input, res.data);
@@ -65,7 +75,9 @@ export const queries = {
   },
   'queries.test': {
     handler: async (input) => {
-      makeValidator({ type:'object', required:['collection','query'], properties:{ collection:{type:'string'}, query:{type:'object'} } })(input);
+      makeValidator({ type:'object', required:['collection','query'], properties:{ collection:{type:'string'}, query:{type:'object'}, server: { type: 'string', description: '대상 서버 이름' } } })(input);
+      const serverName = input.server || null;
+      const adminClient = connectionManager.getClient(serverName);
       const url = BASE_URL + endpointsJson.search.query;
       const res = await http.post(url, { querySet: input.query });
       return ok(endpointsJson.search.query, input, res.data, { mode: 'dry-run' });
