@@ -68,13 +68,11 @@ export const collections = {
         const adminClient = connectionManager.getClient(serverName);
 
         // MultiInstance 방식: 특정 서버의 클라이언트로 작업
-        // 기존 java-wrapper 대신 직접 사용하는 방식도 가능하지만,
-        // 현재는 connectionManager를 통해 서버 선택
         const result = await javaWrapper.createCollection(input.name, {
           shards: input.shards,
           replicas: input.replicas,
           ...input.options
-        });
+        }, serverName);
         return ok(ep.create, input, result);
       } catch (error) {
         // Fallback to REST API
@@ -102,7 +100,8 @@ export const collections = {
     handler: async (input) => {
       makeValidator(deleteSchema)(input);
       try {
-        const result = await javaWrapper.deleteCollection(input.collection);
+        const serverName = input.server || null;
+        const result = await javaWrapper.deleteCollection(input.collection, serverName);
         return ok(ep.delete, input, { deleted: result });
       } catch (error) {
         // Fallback to REST API
@@ -116,7 +115,8 @@ export const collections = {
     handler: async (input) => {
       makeValidator(getSchema)(input);
       try {
-        const result = await javaWrapper.getCollection(input.collection);
+        const serverName = input.server || null;
+        const result = await javaWrapper.getCollection(input.collection, serverName);
         return ok(ep.get, input, result);
       } catch (error) {
         // Fallback to REST API
@@ -134,7 +134,7 @@ export const collections = {
         const adminClient = connectionManager.getClient(serverName);
 
         // MultiInstance 방식: 특정 서버에서 컬렉션 조회
-        const result = await javaWrapper.listCollections();
+        const result = await javaWrapper.listCollections(serverName);
         return ok(ep.list, input, result);
       } catch (error) {
         // Fallback to REST API

@@ -23,7 +23,7 @@ export const sim = {
       try {
         const serverName = input?.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.createSimulation(input.name || input.id, input);
+        const result = await javaWrapper.createSimulation(input.name || input.id, input, serverName);
         return ok(ep.root, input, result);
       } catch (error) {
         // Fallback to REST API
@@ -55,7 +55,7 @@ export const sim = {
       try {
         const serverName = input.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.deleteSimulation(input.id);
+        const result = await javaWrapper.deleteSimulation(input.id, serverName);
         return ok(ep.root + '/{id}', input, { deleted: result });
       } catch (error) {
         // Fallback to REST API
@@ -70,7 +70,7 @@ export const sim = {
       try {
         const serverName = input?.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.listSimulations();
+        const result = await javaWrapper.listSimulations(serverName);
         return ok(ep.root, input, result);
       } catch (error) {
         // Fallback to REST API
@@ -86,7 +86,7 @@ export const sim = {
       try {
         const serverName = input.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.runSimulation(input.id);
+        const result = await javaWrapper.runSimulation(input.id, serverName);
         return ok(ep.root + '/{id}/run', input, result);
       } catch (error) {
         // Fallback to REST API

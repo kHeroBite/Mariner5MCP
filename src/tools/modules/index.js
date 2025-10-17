@@ -31,7 +31,7 @@ export const indexCtl = {
       try {
         const serverName = input.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.runIndex(input.collection, input.type);
+        const result = await javaWrapper.runIndex(input.collection, input.type, serverName);
         return ok(ep.run, input, result);
       } catch (error) {
         // Fallback to REST API
@@ -52,7 +52,7 @@ export const indexCtl = {
         const serverName = input?.server || null;
         const adminClient = connectionManager.getClient(serverName);
         const collection = input.collection || 'default';
-        const result = await javaWrapper.getIndexStatus(collection);
+        const result = await javaWrapper.getIndexStatus(collection, serverName);
         return ok(ep.logs, input, result);
       } catch (error) {
         // Fallback to REST API

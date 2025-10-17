@@ -20,8 +20,10 @@ search-mcp-node/
 │   ├── server.js                         # JSON-RPC 서버 메인 엔트리포인트
 │   ├── http.js                           # Axios HTTP 클라이언트 + 인터셉터 (레거시 지원)
 │   ├── utils.js                          # 공통 유틸리티 함수
-│   ├── java-bridge.js                    # Java JNI 브릿지 레이어 ⭐
-│   ├── java-wrapper.js                   # Mariner5 API 래퍼 ⭐
+│   ├── instance-manager.js               # JNI 멀티 인스턴스 관리 ⭐ 신규
+│   ├── connection-manager.js             # 멀티 서버 연결 관리 ⭐ 신규
+│   ├── java-bridge.js                    # Java JNI 브릿지 레이어 (멀티 인스턴스 지원) ⭐
+│   ├── java-wrapper.js                   # Mariner5 API 래퍼 (instanceId 파라미터) ⭐
 │   ├── schema-analyzer.js                # SQL → Mariner5 필드 매핑 ⭐ 신규
 │   ├── schema-comparator.js              # 필드 비교 및 스키마 업데이트 ⭐ 신규
 │   ├── extension-builder.js              # Extension 자동 생성/컴파일 ⭐ 신규
@@ -90,12 +92,56 @@ search-mcp-node/
 {"id":1,"error":{"code":"E_TOOL","message":"...","data":{}}}
 ```
 
-### 2. Java 브릿지 레이어 (java-bridge.js) ⭐ 신규
-**역할**: Node.js와 Java(Mariner5) JNI 연결
+### 2. 인스턴스 관리자 (instance-manager.js) ⭐ 신규
+**역할**: JNI 멀티 인스턴스 풀 관리 (UUID 기반)
+
+**주요 클래스**:
+- `InstanceManager` : 인스턴스 생성/삭제/조회/모니터링
+- `ConnectionPool` : 연결 풀 관리 (최대 10개, 설정 가능)
+- `InstanceContext` : 인스턴스 상태/메타데이터/통계
+
+**상태**: CREATED → CONNECTING → CONNECTED (또는 ERROR/CLOSED)
+
+**주요 메서드**:
+```javascript
+createInstance(config)      // 새 인스턴스 생성 (UUID)
+getInstance(instanceId)     // 인스턴스 획득
+releaseInstance(instanceId) // 인스턴스 반환
+deleteInstance(instanceId)  // 인스턴스 삭제
+listInstances()             // 모든 인스턴스 조회
+setDefaultInstance(id)      // 기본 인스턴스 설정
+startMonitoring(interval)   // 상태 모니터링 시작
+cleanup()                   // 모든 인스턴스 정리
+```
+
+### 3. 서버 연결 관리자 (connection-manager.js) ⭐ 신규
+**역할**: 멀티 서버 AdminServerClient 연결 관리 (서버명 기반)
+
+**주요 기능**:
+- 서버별 독립적인 연결 유지
+- 서버명으로 클라이언트 획득
+- 자동 재연결 및 상태 추적
+- 연결 통계 수집
+
+**주요 메서드**:
+```javascript
+addServer(name, host, port)    // 서버 등록 및 연결
+getClient(serverName)          // 클라이언트 획득
+removeServer(name)             // 서버 연결 제거
+listServers()                  // 등록된 서버 목록
+getAllServers()                // 모든 서버 정보
+reconnect(serverName)          // 특정 서버 재연결
+setDefaultServer(name)         // 기본 서버 설정
+getStatistics()                // 연결 통계
+```
+
+### 3-1. Java 브릿지 (java-bridge.js) ⭐ 멀티 인스턴스 지원
+**역할**: Node.js와 Java(Mariner5) JNI 연결 (Map 기반 다중 연결)
 
 **주요 기능**:
 - Java 클래스패스 설정 (Mariner5 lib/*.jar)
 - node-java를 통한 Java 메서드 호출
+- 호스트:포트 키로 AdminServerClient 캐싱
 - Java 컬렉션↔JavaScript 객체 변환
 - 비동기 Promise 래핑
 
@@ -108,7 +154,7 @@ javaClasses.CommandIndexTaskServer   // 색인 작업
 javaClasses.CommandSimulationQueryManagement // 시뮬레이션
 ```
 
-### 3. Extension Builder (extension-builder.js) ⭐ 신규
+### 4. Extension Builder (extension-builder.js) ⭐ 신규
 **역할**: Extension Java 코드 자동 생성 → 컴파일 → JAR → Base64 인코딩 파이프라인
 
 **핵심 기능** (5단계):
@@ -181,24 +227,29 @@ ProductNormalizer.jar → "UEsDBAoAAA..." (2.3KB)
 }
 ```
 
-### 4. Java 래퍼 (java-wrapper.js) ⭐ 신규
-**역할**: Mariner5 AdminServerClient 고수준 API 래핑
+### 5. Java 래퍼 (java-wrapper.js) ⭐ 멀티 인스턴스 지원
+**역할**: Mariner5 AdminServerClient 고수준 API 래핑 (인스턴스별 관리)
 
-**주요 메서드**:
-- `connectToAdminServer(host, port)` : Mariner5 연결
-- `listCollections()` : 컬렉션 목록
-- `getCollection(name)` : 컬렉션 조회
-- `createCollection(name, options)` : 컬렉션 생성
-- `deleteCollection(name)` : 컬렉션 삭제
-- `executeSearch(querySet)` : 검색 실행
-- `getIndexStatus(collection)` : 색인 상태
-- `runIndex(collection, type)` : 색인 실행
-- `listSimulations()` : 시뮬레이션 목록
-- `createSimulation(name, config)` : 시뮬레이션 생성
-- `runSimulation(id)` : 시뮬레이션 실행
-- `checkServerHealth()` : 서버 상태 확인
+**주요 메서드** (instanceId 파라미터 추가):
+- `createAdminServerInstance(config)` : 새 인스턴스 생성
+- `deleteAdminServerInstance(instanceId)` : 인스턴스 삭제
+- `listCollections(instanceId = null)` : 컬렉션 목록
+- `getCollection(name, instanceId = null)` : 컬렉션 조회
+- `createCollection(name, options, instanceId = null)` : 컬렉션 생성
+- `deleteCollection(name, instanceId = null)` : 컬렉션 삭제
+- `executeSearch(querySet, instanceId = null)` : 검색 실행
+- `getIndexStatus(collection, instanceId = null)` : 색인 상태
+- `runIndex(collection, type, instanceId = null)` : 색인 실행
+- `listSimulations(instanceId = null)` : 시뮬레이션 목록
+- `createSimulation(name, config, instanceId = null)` : 시뮬레이션 생성
+- `runSimulation(id, instanceId = null)` : 시뮬레이션 실행
+- `deleteSimulation(id, instanceId = null)` : 시뮬레이션 삭제
+- `checkServerHealth(instanceId = null)` : 서버 상태 확인
+- `setDefaultInstance(instanceId)` : 기본 인스턴스 설정
+- `getDefaultInstanceId()` : 기본 인스턴스 조회
+- `getAllInstances()` : 모든 인스턴스 조회
 
-### 4. HTTP 클라이언트 (http.js:1-26) [레거시]
+### 6. HTTP 클라이언트 (http.js:1-26) [레거시]
 **역할**: Axios 기반 HTTP 통신 (REST API 폴백용)
 
 **주요 기능**:
@@ -208,7 +259,7 @@ ProductNormalizer.jar → "UEsDBAoAAA..." (2.3KB)
 
 **주의**: Java 네이티브 호출 실패 시에만 사용됨
 
-### 5. 유틸리티 (utils.js:1-29)
+### 7. 유틸리티 (utils.js:1-29)
 **역할**: 공통 함수 라이브러리
 
 **함수 목록**:
@@ -217,7 +268,7 @@ ProductNormalizer.jar → "UEsDBAoAAA..." (2.3KB)
 - `ok(endpoint, request, data, meta)` : 성공 응답 포맷팅
 - `fail(code, message, details, hint)` : 실패 응답 포맷팅
 
-### 6. 도구 레지스트리 (tools/index.js:1-25)
+### 8. 도구 레지스트리 (tools/index.js:1-25)
 **역할**: 모든 도구 모듈을 하나의 객체로 통합
 
 **구조**:
@@ -229,9 +280,9 @@ export const tools = {
 };
 ```
 
-### 7. 기능별 도구 모듈 (tools/modules/*.js)
+### 9. 기능별 도구 모듈 (tools/modules/*.js) ⭐ instanceId 파라미터 지원
 
-#### collections.js (5개 도구)
+#### collections.js (5개 도구, instanceId 파라미터 추가)
 - **collections.create** : 새 컬렉션 생성 (name, shards, replicas 필수)
 - **collections.update** : 컬렉션 설정 변경
 - **collections.delete** : 컬렉션 삭제
@@ -432,7 +483,7 @@ SQL 쿼리 기반 자동 컬렉션 생성 + Extension 자동 생성/적용
 // 결과: 새로운 필드만 추가 (기존 필드는 유지)
 ```
 
-### 8. 엔드포인트 설정 (config/endpoints.json) [레거시]
+### 10. 엔드포인트 설정 (config/endpoints.json) [레거시]
 
 ```json
 {
@@ -602,7 +653,8 @@ npm run dev
 
 ```json
 {
-  "java": "^0.17.0",       // Java JNI 브릿지 ⭐ 신규
+  "java": "^0.17.0",       // Java JNI 브릿지 ⭐
+  "uuid": "^9.0.0",        // UUID 생성 (인스턴스 ID) ⭐ 신규
   "axios": "^1.12.2",      // HTTP 클라이언트 (폴백용)
   "dotenv": "^16.6.1",     // 환경변수 로딩
   "ajv": "^8.17.1"         // JSON 스키마 검증
@@ -812,6 +864,17 @@ schema-from-sql.js (SQL 통합)
 - 검색엔진 REST API 문서 (BASE_URL 참조)
 
 ## 📊 프로젝트 통계
+
+### v3.0 (멀티 인스턴스 지원)
+
+- **새로 추가된 파일**: instance-manager.js, connection-manager.js (2개)
+- **수정된 파일**: java-bridge.js (Map 기반 다중 연결), java-wrapper.js (instanceId 파라미터), 도구 모듈 5개
+- **코드량**: 약 400줄 (instance-manager.js + connection-manager.js)
+- **최대 동시 인스턴스**: 10개 (설정 가능)
+- **인스턴스 식별**: UUID 기반
+- **기본 서버 관리**: 자동 장애 조치 지원
+
+### v2.0 (Extension 자동 생성)
 
 - **총 도구**: 50+ (기본 도구 + Extension 자동 생성 도구)
 - **새로 추가된 도구**: ext.generate, ext.templates, ext.preview, ext.attachToCollection, ext.detachFromCollection (5개)

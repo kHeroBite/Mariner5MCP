@@ -185,17 +185,19 @@ PROJECT.md 파일에는 다음 정보가 문서화되어 있습니다:
 
 ```yaml
 프로젝트_개요:
-  프로젝트명: search-mcp-node
+  프로젝트명: search-mcp-node (v3.0)
   타입: Node.js MCP 서버 (stdin/stdout JSON-RPC)
-  버전: 1.0.0
+  버전: 3.0.0
   런타임: Node.js (ES Module)
-  총_파일수: 15개
+  총_파일수: 17개
   구성:
     - 핵심_서버: 3개 (server.js, http.js, utils.js)
+    - 멀티_인스턴스: 2개 (instance-manager.js, connection-manager.js) ⭐ 신규
+    - Java_브릿지: 2개 (java-bridge.js, java-wrapper.js)
     - 도구_레지스트리: 1개 (tools/index.js)
     - 도구_모듈: 11개 (collections, columns, queries, dict, index, server, logs, sim, ext, codegen, search)
     - 설정: 1개 (config/endpoints.json)
-    - 의존성: 3개 (package.json, package-lock.json, .env)
+    - 의존성: 4개 (package.json, package-lock.json, .env, uuid)
     - 문서: 3개 (README.md, PROJECT.md, CLAUDE.md)
 
   주의사항:

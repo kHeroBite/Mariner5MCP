@@ -22,7 +22,7 @@ export const search = {
       try {
         const serverName = input?.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.executeSearch(input.querySet);
+        const result = await javaWrapper.executeSearch(input.querySet, serverName);
         return ok(ep.query, input, result);
       } catch (error) {
         // Fallback to REST API

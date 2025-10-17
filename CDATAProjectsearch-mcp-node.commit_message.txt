@@ -1,0 +1,21 @@
+[클로드] ✨ JNI 멀티 인스턴스 구현 완료
+
+주요 기능:
+- InstanceManager: UUID 기반 JNI 멀티 인스턴스 관리
+- ConnectionPool: Mariner5 AdminServer 연결 풀링 (최대 10개)
+- java-bridge.js: 싱글톤 → 멀티 인스턴스 아키텍처 전환
+- java-wrapper.js: 모든 API에 instanceId 파라미터 추가 (선택사항)
+- 하위 호환성: instanceId 생략 시 기본 인스턴스 자동 사용
+
+신규 파일:
+- src/instance-manager.js: 멀티 인스턴스 관리 (InstanceContext, ConnectionPool, InstanceManager)
+
+수정 사항:
+- package.json: uuid 의존성 추가
+- java-bridge.js: adminServerClientInstances Map으로 변경, disconnectAdminServerClient 추가
+- java-wrapper.js: 모든 메서드에 instanceId 파라미터 추가, 인스턴스 관리 API 추가
+  (createAdminServerInstance, deleteAdminServerInstance, getAllInstances, setDefaultInstance)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>

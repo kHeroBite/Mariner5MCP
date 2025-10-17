@@ -35,7 +35,7 @@ export const serverCtl = {
       try {
         const serverName = input?.server || null;
         const adminClient = connectionManager.getClient(serverName);
-        const result = await javaWrapper.checkServerHealth();
+        const result = await javaWrapper.checkServerHealth(serverName);
         return ok(ep.health, input||{}, result);
       } catch (error) {
         // Fallback to REST API
