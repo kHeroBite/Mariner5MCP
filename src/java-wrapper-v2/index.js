@@ -69,6 +69,9 @@ import * as monitoringMethods from './monitoring.js';
 import * as tuningMethods from './tuning.js';
 import * as hotspotMethods from './hotspot.js';
 import * as advancedMethods from './advanced.js';
+import * as optimizationMethods from './optimization.js';
+import * as clusterMethods from './cluster.js';
+import * as aggregationMethods from './aggregation.js';
 import { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
 
 // Collection Management (130+)
@@ -95,8 +98,17 @@ export * as tuning from './tuning.js';
 // Hotspot Analytics (30+)
 export * as hotspot from './hotspot.js';
 
-// Advanced Features (40+) ⭐ 신규
+// Advanced Features (40+) ⭐ v3.4
 export * as advanced from './advanced.js';
+
+// Query Optimization (10+) ⭐ v3.5 신규
+export * as optimization from './optimization.js';
+
+// Cluster Management (10+) ⭐ v3.5 신규
+export * as cluster from './cluster.js';
+
+// Data Aggregation (10+) ⭐ v3.5 신규
+export * as aggregation from './aggregation.js';
 
 // Helpers
 export { getAdminClient, releaseAdminClient, convertToJavaObject };
@@ -146,6 +158,9 @@ export default {
   tuning: tuningMethods,
   hotspot: hotspotMethods,
   advanced: advancedMethods,
+  optimization: optimizationMethods,
+  cluster: clusterMethods,
+  aggregation: aggregationMethods,
 
   // Helpers
   getAdminClient,

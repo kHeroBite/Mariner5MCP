@@ -20,6 +20,9 @@ import { datasource } from './modules/datasource.js';
 import { collectionMonitor } from './modules/collection-monitor.js';
 import { advancedSearch } from './modules/advanced-search.js';
 import { advancedFeatures } from './modules/advanced-features.js';
+import { optimization } from './modules/optimization-tools.js';
+import { cluster } from './modules/cluster-tools.js';
+import { aggregation } from './modules/aggregation-tools.js';
 
 export const tools = {
   ...collections,
@@ -43,5 +46,8 @@ export const tools = {
   ...datasource,
   ...collectionMonitor,
   ...advancedSearch,
-  ...advancedFeatures
+  ...advancedFeatures,
+  ...optimization,
+  ...cluster,
+  ...aggregation
 };
