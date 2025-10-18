@@ -37,9 +37,20 @@ search-mcp-node/
 │   │   │   └── ExternalDataFetcher.java.tpl
 │   │   └── filter/
 │   │       └── CustomFilter.java.tpl
+│   ├── java-wrapper-v2/                  # 400+ 메서드 통합 래퍼 모듈 ⭐ 신규
+│   │   ├── index.js                      # 통합 export (모든 모듈)
+│   │   ├── helpers.js                    # 공통 유틸리티 (getAdminClient, convertToJavaObject)
+│   │   ├── collection.js                 # 컬렉션 관리 (80+ 메서드)
+│   │   ├── dictionary.js                 # 사전 관리 (100+ 메서드, 12가지 타입)
+│   │   ├── indexing.js                   # 색인 작업 (20+ 메서드)
+│   │   ├── management.js                 # 계정/스케줄/접속/로그 (40+ 메서드)
+│   │   ├── server.js                     # 서버/브로커/리소스 (30+ 메서드)
+│   │   ├── monitoring.js                 # 로그 모니터링 (30+ 메서드)
+│   │   └── tuning.js                     # 검색 튜닝 (60+ 메서드)
+│   │
 │   └── tools/                            # MCP 도구 정의
-│       ├── index.js                      # 도구 레지스트리 (모든 도구 export)
-│       └── modules/                      # 기능별 도구 모듈 (14개 포함 신규)
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 96개+)
+│       └── modules/                      # 기능별 도구 모듈 (14개 + 신규 3개)
 │           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
 │           ├── columns.js                # 스키마 필드 관리
 │           ├── queries.js                # 저장 쿼리 관리
@@ -48,11 +59,15 @@ search-mcp-node/
 │           ├── server.js                 # 서버 설정 (Java 네이티브 + REST 폴백)
 │           ├── logs.js                   # 로그 조회
 │           ├── sim.js                    # 시뮬레이션 (Java 네이티브 + REST 폴백)
-│           ├── ext.js                    # Java Extension (11개 도구) ⭐ 확장됨
+│           ├── ext.js                    # Java Extension (11개 도구)
 │           ├── codegen.js                # 코드 생성
 │           ├── search.js                 # 검색 실행 (Java 네이티브 + REST 폴백)
-│           ├── schema-from-sql.js        # SQL 기반 자동 컬렉션 생성 ⭐ 신규
-│           └── schema-comparator.js      # 필드 비교/업데이트 ⭐ 신규
+│           ├── schema-from-sql.js        # SQL 기반 자동 컬렉션 생성
+│           ├── servers.js                # 다중 서버 관리
+│           ├── admin.js                  # 계정/스케줄/접속/로그 (40개 도구) ⭐ 신규
+│           ├── hotKeyword.js             # 핫 키워드 관리 (15개 도구) ⭐ 신규
+│           ├── monitoring.js             # 로그 모니터링 (30개 도구) ⭐ 신규
+│           └── tuning.js                 # 검색 튜닝 (30개 도구) ⭐ 신규
 │
 ├── config/
 │   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
@@ -248,6 +263,58 @@ ProductNormalizer.jar → "UEsDBAoAAA..." (2.3KB)
 - `setDefaultInstance(instanceId)` : 기본 인스턴스 설정
 - `getDefaultInstanceId()` : 기본 인스턴스 조회
 - `getAllInstances()` : 모든 인스턴스 조회
+
+### 5-1. 통합 래퍼 v2 (java-wrapper-v2/) ⭐ 신규 - 400+ 메서드
+**역할**: AdminServerClient를 고수준으로 래핑한 모듈화된 API (7개 기능별 모듈)
+
+**모듈 구조**:
+```
+java-wrapper-v2/
+├── index.js          # 통합 export (모든 모듈 + 기본 메서드)
+├── helpers.js        # 공통 유틸리티
+├── collection.js     # 컬렉션/스키마/인덱스 (80+ 메서드)
+├── dictionary.js     # 12가지 사전 타입 (100+ 메서드)
+├── indexing.js       # 색인/백업/스냅샷 (20+ 메서드)
+├── management.js     # 계정/스케줄/접속/로그 (40+ 메서드)
+├── server.js         # 서버/브로커/리소스 (30+ 메서드)
+├── monitoring.js     # 로그 모니터링 (30+ 메서드)
+└── tuning.js         # 검색 프로파일/QuerySet (60+ 메서드)
+```
+
+**주요 특징**:
+- 모든 메서드는 선택적 `instanceId` 파라미터 지원 (null = 기본 인스턴스)
+- Try-catch 에러 처리 및 구조화된 로깅
+- javaMapToObject/javaListToArray 자동 타입 변환
+- getAdminClient/releaseAdminClient 인스턴스 관리
+
+**각 모듈 설명**:
+
+| 모듈 | 메서드 수 | 주요 기능 |
+|------|---------|--------|
+| collection.js | 80+ | 스키마, 인덱스 필드, 정렬/필터/그룹 설정, DBWatcher |
+| dictionary.js | 100+ | 사용자사전, 불용어, 유의어, 문서랭킹, 추천, 리다이렉트 등 12가지 |
+| indexing.js | 20+ | 색인 실행/취소/동기, 백업/복구, 스냅샷, 레포지토리 내보내기 |
+| management.js | 40+ | 계정 관리, 스케줄 작업, IP 접속 제어, 로그 설정 |
+| server.js | 30+ | 서버 시작/중지/재시작, 브로커 관리, CPU/메모리/디스크 사용량 |
+| monitoring.js | 30+ | 검색/색인/에러/알람 로그, 로그 설정 및 유지 기간 |
+| tuning.js | 60+ | 검색 프로파일, QuerySet, 랭킹 모델, 필터/정렬/그룹 필드 설정 |
+
+**사용 예시**:
+```javascript
+import * as javaWrapper from './java-wrapper-v2/index.js';
+
+// 스키마 생성 (기본 인스턴스)
+await javaWrapper.collection.createSchema('myCollection', {...});
+
+// 특정 인스턴스에서 스키마 생성
+await javaWrapper.collection.createSchema('myCollection', {...}, 'instance-id');
+
+// 사전 추가
+await javaWrapper.dictionary.addUserDicEntry('사용자', '명사', ..., 'instance-id');
+
+// 색인 실행
+await javaWrapper.indexing.executeIndex('myCollection', 'rebuild', 'instance-id');
+```
 
 ### 6. HTTP 클라이언트 (http.js:1-26) [레거시]
 **역할**: Axios 기반 HTTP 통신 (REST API 폴백용)
@@ -873,6 +940,26 @@ schema-from-sql.js (SQL 통합)
 - **최대 동시 인스턴스**: 10개 (설정 가능)
 - **인스턴스 식별**: UUID 기반
 - **기본 서버 관리**: 자동 장애 조치 지원
+
+### v3.1 (관리 기능 및 모니터링 확장) ⭐ 최신
+
+- **총 도구**: 96개+ (기본 11개 + 신규 85개)
+- **총 모듈**: 14개 MCP 도구 모듈 + java-wrapper-v2 7개 모듈
+- **java-wrapper-v2**: 400+ 메서드 (7개 모듈)
+- **새로 추가된 도구 모듈** (3개):
+  - admin.js: 40개 도구 (계정, 스케줄 작업, 접속 설정, 로그 설정)
+  - hotKeyword.js: 15개 도구 (핫 키워드, 트렌딩, 추천 관리)
+  - monitoring.js: 30개 도구 (로그 모니터링, 리소스 모니터링)
+- **새로 추가된 java-wrapper-v2 모듈** (7개):
+  - collection.js: 80+ 메서드
+  - dictionary.js: 100+ 메서드
+  - indexing.js: 20+ 메서드
+  - management.js: 40+ 메서드
+  - server.js: 30+ 메서드
+  - monitoring.js: 30+ 메서드
+  - tuning.js: 60+ 메서드
+- **코드량**: 약 1,300줄 신규 추가 (admin.js, hotKeyword.js, monitoring.js + java-wrapper-v2 모듈)
+- **특징**: 다중 인스턴스 지원, 모든 메서드에 선택적 instanceId 파라미터
 
 ### v2.0 (Extension 자동 생성)
 

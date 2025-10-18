@@ -14,6 +14,7 @@ import { servers } from './modules/servers.js';
 import { admin } from './modules/admin.js';
 import { hotKeyword } from './modules/hotKeyword.js';
 import { monitoring } from './modules/monitoring.js';
+import { tuning } from './modules/tuning.js';
 
 export const tools = {
   ...collections,
@@ -31,5 +32,6 @@ export const tools = {
   ...servers,
   ...admin,
   ...hotKeyword,
-  ...monitoring
+  ...monitoring,
+  ...tuning
 };
