@@ -187,6 +187,106 @@ export async function exportRepository(collectionName, outputPath, instanceId = 
   }
 }
 
+// ==================== CommandIndexKeyList (복합 인덱스 키 관리) ====================
+
+/**
+ * 복합 인덱스 키 목록 조회
+ */
+export async function listIndexKeys(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['IndexKeyList']);
+    const result = await callJavaMethod(command, 'getIndexKeyList', collectionName);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(result);
+  } catch (error) {
+    console.error('[IndexKey] Error listing index keys:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 복합 인덱스 키 추가
+ * @param {string} collectionName - 컬렉션명
+ * @param {array} fields - 복합 키 필드 배열
+ * @param {object} options - 키 옵션 (필터, 정렬 등)
+ */
+export async function addIndexKey(collectionName, fields = [], options = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['IndexKeyList']);
+    const javaOptions = convertToJavaObject(options);
+    const result = await callJavaMethod(
+      command,
+      'addIndexKey',
+      collectionName,
+      convertToJavaObject(fields),
+      javaOptions
+    );
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[IndexKey] Error adding index key:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 복합 인덱스 키 제거
+ */
+export async function removeIndexKey(collectionName, keyId, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['IndexKeyList']);
+    const result = await callJavaMethod(command, 'removeIndexKey', collectionName, keyId);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[IndexKey] Error removing index key:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 복합 인덱스 키 업데이트
+ */
+export async function updateIndexKey(collectionName, keyId, fields = [], options = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['IndexKeyList']);
+    const javaOptions = convertToJavaObject(options);
+    const result = await callJavaMethod(
+      command,
+      'updateIndexKey',
+      collectionName,
+      keyId,
+      convertToJavaObject(fields),
+      javaOptions
+    );
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[IndexKey] Error updating index key:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 복합 인덱스 키 검증
+ */
+export async function validateIndexKey(collectionName, fields = [], instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['IndexKeyList']);
+    const result = await callJavaMethod(command, 'validateIndexKey', collectionName, convertToJavaObject(fields));
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[IndexKey] Error validating index key:', error.message);
+    throw error;
+  }
+}
+
 export default {
   executeIndex,
   cancelIndex,
@@ -198,5 +298,11 @@ export default {
   restoreSnapshot,
   listSnapshots,
   uploadDocuments,
-  exportRepository
+  exportRepository,
+  // CommandIndexKeyList
+  listIndexKeys,
+  addIndexKey,
+  removeIndexKey,
+  updateIndexKey,
+  validateIndexKey
 };

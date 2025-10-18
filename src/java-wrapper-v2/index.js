@@ -69,11 +69,6 @@ import * as monitoringMethods from './monitoring.js';
 import * as tuningMethods from './tuning.js';
 import * as hotspotMethods from './hotspot.js';
 import * as advancedMethods from './advanced.js';
-import * as optimizationMethods from './optimization.js';
-import * as clusterMethods from './cluster.js';
-import * as aggregationMethods from './aggregation.js';
-import * as enrichmentMethods from './enrichment.js';
-import * as analyticsMethods from './analytics.js';
 import * as queryBuilderMethods from './query-builder.js';
 import * as analyzerConfigMethods from './analyzer-config.js';
 import * as sortConfigMethods from './sort-config.js';
@@ -105,21 +100,6 @@ export * as hotspot from './hotspot.js';
 
 // Advanced Features (40+) ⭐ v3.4
 export * as advanced from './advanced.js';
-
-// Query Optimization (10+) ⭐ v3.5 신규
-export * as optimization from './optimization.js';
-
-// Cluster Management (10+) ⭐ v3.5 신규
-export * as cluster from './cluster.js';
-
-// Data Aggregation (10+) ⭐ v3.5 신규
-export * as aggregation from './aggregation.js';
-
-// Data Enrichment (15+) ⭐ v3.6 신규
-export * as enrichment from './enrichment.js';
-
-// Advanced Analytics (15+) ⭐ v3.6 신규
-export * as analytics from './analytics.js';
 
 // Query Builder (33+) ⭐ v3.7 신규
 export * as queryBuilder from './query-builder.js';
@@ -178,11 +158,6 @@ export default {
   tuning: tuningMethods,
   hotspot: hotspotMethods,
   advanced: advancedMethods,
-  optimization: optimizationMethods,
-  cluster: clusterMethods,
-  aggregation: aggregationMethods,
-  enrichment: enrichmentMethods,
-  analytics: analyticsMethods,
   queryBuilder: queryBuilderMethods,
   analyzerConfig: analyzerConfigMethods,
   sortConfig: sortConfigMethods,

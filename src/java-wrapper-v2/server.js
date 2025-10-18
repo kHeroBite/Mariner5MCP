@@ -185,6 +185,88 @@ export async function getDiskUsage(instanceId = null) {
   }
 }
 
+// ==================== CommandStatus (상세 상태 조회) ====================
+
+/**
+ * 상세한 서버 상태 조회 (메모리, CPU, 스레드, 연결 등)
+ */
+export async function getDetailedStatus(instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['Status']);
+    const status = await callJavaMethod(command, 'getDetailedStatus');
+    releaseAdminClient(instanceId);
+    return javaMapToObject(status);
+  } catch (error) {
+    console.error('[Server] Error getting detailed status:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * JVM 스레드 덤프 (디버깅용)
+ */
+export async function getThreadDump(instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['Status']);
+    const dump = await callJavaMethod(command, 'getThreadDump');
+    releaseAdminClient(instanceId);
+    return javaMapToObject(dump);
+  } catch (error) {
+    console.error('[Server] Error getting thread dump:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 시스템 리소스 사용률 조회 (상세)
+ */
+export async function getResourceUsage(instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['Status']);
+    const usage = await callJavaMethod(command, 'getResourceUsage');
+    releaseAdminClient(instanceId);
+    return javaMapToObject(usage);
+  } catch (error) {
+    console.error('[Server] Error getting resource usage:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 서버 헬스 체크 (상세)
+ */
+export async function getHealthStatus(instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['Status']);
+    const health = await callJavaMethod(command, 'getHealthStatus');
+    releaseAdminClient(instanceId);
+    return javaMapToObject(health);
+  } catch (error) {
+    console.error('[Server] Error getting health status:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 네트워크 연결 상태 조회
+ */
+export async function getConnectionStatus(instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['Status']);
+    const connections = await callJavaMethod(command, 'getConnectionStatus');
+    releaseAdminClient(instanceId);
+    return javaMapToObject(connections);
+  } catch (error) {
+    console.error('[Server] Error getting connection status:', error.message);
+    throw error;
+  }
+}
+
 export default {
   startServer,
   stopServer,
@@ -198,5 +280,11 @@ export default {
   getBrokerStatus,
   getCPUUsage,
   getMemoryUsage,
-  getDiskUsage
+  getDiskUsage,
+  // CommandStatus (상세 상태)
+  getDetailedStatus,
+  getThreadDump,
+  getResourceUsage,
+  getHealthStatus,
+  getConnectionStatus
 };

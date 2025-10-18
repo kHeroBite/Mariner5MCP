@@ -1,0 +1,7 @@
+{
+  "topic": "SearchMCPAlert",
+  "title": "클로드코드 v3.7 작업 완료",
+  "message": "작업 요약: 검색품질 및 개발자경험 개선\n\n✨ v3.7 신규 기능 (총 33개 도구, 33개 메서드)\n\n1. SearchQueryBuilder (15개 도구)\n   - Fluent API 검색쿼리 빌더\n   - REST API 자동 생성\n\n2. AnalyzerConfig (12개 도구)\n   - 형태소/바이그램/유니그램 명시적 제어\n   - 필드별 분석기 설정\n\n3. SortConfig (8개 도구)\n   - n차 정렬 우선순위 제어\n   - 1차/2차/3차 정렬 명시\n\n📊 프로젝트 누적 통계\n- 총 MCP 도구: 358+개 (+33)\n- 총 java-wrapper 메서드: 663+개 (+33)\n- 총 신규 코드: 약 12,200줄\n\n💾 커밋 해시: efedf88\n커밋 메시지: [클로드] ✨ v3.7 검색품질 및 개발자경험 개선",
+  "priority": 4,
+  "tags": ["checkmark", "AI", "Claude", "complete", "v3.7"]
+}

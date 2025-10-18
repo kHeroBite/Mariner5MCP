@@ -20,11 +20,6 @@ import { datasource } from './modules/datasource.js';
 import { collectionMonitor } from './modules/collection-monitor.js';
 import { advancedSearch } from './modules/advanced-search.js';
 import { advancedFeatures } from './modules/advanced-features.js';
-import { optimization } from './modules/optimization-tools.js';
-import { cluster } from './modules/cluster-tools.js';
-import { aggregation } from './modules/aggregation-tools.js';
-import { enrichment } from './modules/enrichment-tools.js';
-import { analytics } from './modules/analytics-tools.js';
 import { queryBuilder } from './modules/query-builder-tools.js';
 import { analyzerTools } from './modules/analyzer-tools.js';
 import { sortTools } from './modules/sort-tools.js';
@@ -52,11 +47,6 @@ export const tools = {
   ...collectionMonitor,
   ...advancedSearch,
   ...advancedFeatures,
-  ...optimization,
-  ...cluster,
-  ...aggregation,
-  ...enrichment,
-  ...analytics,
   ...queryBuilder,
   ...analyzerTools,
   ...sortTools
