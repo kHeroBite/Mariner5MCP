@@ -11,6 +11,9 @@ import { codegen } from './modules/codegen.js';
 import { search } from './modules/search.js';
 import { schemaFromSql } from './modules/schema-from-sql.js';
 import { servers } from './modules/servers.js';
+import { admin } from './modules/admin.js';
+import { hotKeyword } from './modules/hotKeyword.js';
+import { monitoring } from './modules/monitoring.js';
 
 export const tools = {
   ...collections,
@@ -25,5 +28,8 @@ export const tools = {
   ...codegen,
   ...search,
   ...schemaFromSql,
-  ...servers
+  ...servers,
+  ...admin,
+  ...hotKeyword,
+  ...monitoring
 };

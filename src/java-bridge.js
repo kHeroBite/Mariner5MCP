@@ -826,6 +826,11 @@ export function getDiagnostics() {
   };
 }
 
+export {
+  logger,
+  JNIError
+};
+
 export default {
   initializeJavaClasses,
   getAdminServerClient,
@@ -839,5 +844,6 @@ export default {
   getJVMStatus,
   getDiagnostics,
   JNIError,
-  withRetry
+  withRetry,
+  logger
 };

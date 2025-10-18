@@ -1,20 +1,25 @@
-[클로드] ✨ JNI 멀티 인스턴스 구현 완료
+[클로드] 🚀 MCP 도구 모듈 확장 (admin/hotKeyword/monitoring)
 
-주요 기능:
-- InstanceManager: UUID 기반 JNI 멀티 인스턴스 관리
-- ConnectionPool: Mariner5 AdminServer 연결 풀링 (최대 10개)
-- java-bridge.js: 싱글톤 → 멀티 인스턴스 아키텍처 전환
-- java-wrapper.js: 모든 API에 instanceId 파라미터 추가 (선택사항)
-- 하위 호환성: instanceId 생략 시 기본 인스턴스 자동 사용
+## 변경 사항
 
-신규 파일:
-- src/instance-manager.js: 멀티 인스턴스 관리 (InstanceContext, ConnectionPool, InstanceManager)
+### 신규 MCP 도구 모듈 생성 (85개 도구)
+- admin.js (40개): 계정, 스케줄 작업, 접속 설정, 로그 설정 관리
+- hotKeyword.js (15개): 핫 키워드, 트렌딩 키워드, 추천 관리
+- monitoring.js (30개): 검색/색인/에러/알람 로그, 리소스 모니터링
 
-수정 사항:
-- package.json: uuid 의존성 추가
-- java-bridge.js: adminServerClientInstances Map으로 변경, disconnectAdminServerClient 추가
-- java-wrapper.js: 모든 메서드에 instanceId 파라미터 추가, 인스턴스 관리 API 추가
-  (createAdminServerInstance, deleteAdminServerInstance, getAllInstances, setDefaultInstance)
+### 코어 모듈 개선
+- java-bridge.js: logger 및 JNIError 명시적 export 추가
+- java-wrapper-v2/index.js: 모듈 import 정리 및 기본 export 수정
+- tools/index.js: 신규 모듈 등록 (admin, hotKeyword, monitoring)
+
+### 구조 및 인테그레이션
+- 모든 신규 도구는 java-wrapper-v2 모듈과 직접 연동
+- AJV 스키마 기반 입력 검증 구현
+- 일관된 에러 처리 및 응답 포맷 유지
+
+## 총 기능 수
+- java-wrapper-v2: 400+ 메서드 (7개 모듈)
+- MCP 도구: 이제 총 96개+ (기존 11개 + 신규 85개)
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 

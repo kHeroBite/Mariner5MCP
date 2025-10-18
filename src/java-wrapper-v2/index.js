@@ -6,7 +6,7 @@
  */
 
 // 기존 java-wrapper.js 기본 기능 import
-export {
+import {
   initializeJavaClasses,
   createAdminServerInstance,
   connectToAdminServer,
@@ -32,6 +32,43 @@ export {
   setDefaultInstance
 } from '../java-wrapper.js';
 
+// Re-export all from java-wrapper.js
+export {
+  initializeJavaClasses,
+  createAdminServerInstance,
+  connectToAdminServer,
+  disconnectFromAdminServer,
+  deleteAdminServerInstance,
+  listCollections,
+  getCollection,
+  createCollection,
+  deleteCollection,
+  executeSearch,
+  getIndexStatus,
+  runIndex,
+  listSimulations,
+  createSimulation,
+  deleteSimulation,
+  runSimulation,
+  checkServerHealth,
+  getErrorLogs,
+  deleteErrorLog,
+  getJNIStatus,
+  getJNIDiagnostics,
+  getAllInstances,
+  setDefaultInstance
+};
+
+// Import additional modules
+import * as collectionMethods from './collection.js';
+import * as dictionaryMethods from './dictionary.js';
+import * as indexingMethods from './indexing.js';
+import * as managementMethods from './management.js';
+import * as serverMethods from './server.js';
+import * as monitoringMethods from './monitoring.js';
+import * as tuningMethods from './tuning.js';
+import { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
+
 // Collection Management (80+)
 export * as collection from './collection.js';
 
@@ -54,7 +91,7 @@ export * as monitoring from './monitoring.js';
 export * as tuning from './tuning.js';
 
 // Helpers
-export { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
+export { getAdminClient, releaseAdminClient, convertToJavaObject };
 
 // Unified API
 export default {
@@ -92,13 +129,13 @@ export default {
   getJNIDiagnostics,
 
   // Grouped APIs
-  collection,
-  dictionary,
-  indexing,
-  management,
-  server,
-  monitoring,
-  tuning,
+  collection: collectionMethods,
+  dictionary: dictionaryMethods,
+  indexing: indexingMethods,
+  management: managementMethods,
+  server: serverMethods,
+  monitoring: monitoringMethods,
+  tuning: tuningMethods,
 
   // Helpers
   getAdminClient,
