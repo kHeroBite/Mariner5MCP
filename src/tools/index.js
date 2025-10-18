@@ -19,6 +19,7 @@ import { tuning } from './modules/tuning.js';
 import { datasource } from './modules/datasource.js';
 import { collectionMonitor } from './modules/collection-monitor.js';
 import { advancedSearch } from './modules/advanced-search.js';
+import { advancedFeatures } from './modules/advanced-features.js';
 
 export const tools = {
   ...collections,
@@ -41,5 +42,6 @@ export const tools = {
   ...tuning,
   ...datasource,
   ...collectionMonitor,
-  ...advancedSearch
+  ...advancedSearch,
+  ...advancedFeatures
 };

@@ -37,7 +37,7 @@ search-mcp-node/
 │   │   │   └── ExternalDataFetcher.java.tpl
 │   │   └── filter/
 │   │       └── CustomFilter.java.tpl
-│   ├── java-wrapper-v2/                  # 480+ 메서드 통합 래퍼 모듈 ⭐ 신규
+│   ├── java-wrapper-v2/                  # 520+ 메서드 통합 래퍼 모듈 ⭐ 신규
 │   │   ├── index.js                      # 통합 export (모든 모듈)
 │   │   ├── helpers.js                    # 공통 유틸리티 (getAdminClient, convertToJavaObject)
 │   │   ├── collection.js                 # 컬렉션 관리 (130+ 메서드) - DBWatcher/Monitor/DataSource ⭐
@@ -47,16 +47,17 @@ search-mcp-node/
 │   │   ├── management.js                 # 계정/스케줄/접속/로그 (40+ 메서드)
 │   │   ├── server.js                     # 서버/브로커/리소스 (30+ 메서드)
 │   │   ├── monitoring.js                 # 로그 모니터링 (30+ 메서드)
-│   │   └── tuning.js                     # 검색 튜닝 (60+ 메서드)
+│   │   ├── tuning.js                     # 검색 튜닝 (60+ 메서드)
+│   │   └── advanced.js                   # 고급 기능 (50+ 메서드) - VectorSearch/Union/Drama ⭐ v3.4
 │   │
 │   └── tools/                            # MCP 도구 정의
-│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 178개+)
-│       └── modules/                      # 기능별 도구 모듈 (21개 + 신규 4개)
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 225+개)
+│       └── modules/                      # 기능별 도구 모듈 (25개)
 │           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
 │           ├── columns.js                # 스키마 필드 관리
 │           ├── queries.js                # 저장 쿼리 관리
 │           ├── dict.js                   # 사전 관리
-│           ├── dict-advanced.js          # 고급 사전 (UserCnDic, PreMorph) (16개) ⭐ 신규
+│           ├── dict-advanced.js          # 고급 사전 (UserCnDic, PreMorph) (16개) ⭐ v3.2
 │           ├── index.js                  # 색인 제어 (Java 네이티브 + REST 폴백)
 │           ├── server.js                 # 서버 설정 (Java 네이티브 + REST 폴백)
 │           ├── logs.js                   # 로그 조회
@@ -71,8 +72,10 @@ search-mcp-node/
 │           ├── monitoring.js             # 로그 모니터링 (30개 도구)
 │           ├── tuning.js                 # 검색 튜닝 (30개 도구)
 │           ├── datasource.js             # DataSource 관리 (15개 도구) ⭐ v3.2
-│           ├── collection-monitor.js     # 컬렉션 모니터링 (30개 도구) ⭐ v3.3 신규
-│           └── advanced-search.js        # 고급 검색 (18개 도구) ⭐ v3.3 신규
+│           ├── collection-monitor.js     # 컬렉션 모니터링 (30개 도구) ⭐ v3.3
+│           ├── advanced-search.js        # 고급 검색 (18개 도구) ⭐ v3.3
+│           └── advanced-features.js      # 고급 기능 (25개 도구) ⭐ v3.4
+│                                         #   - VectorSearch (8개) / Union (7개) / Drama (10개)
 │
 ├── config/
 │   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
