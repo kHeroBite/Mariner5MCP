@@ -37,11 +37,12 @@ search-mcp-node/
 │   │   │   └── ExternalDataFetcher.java.tpl
 │   │   └── filter/
 │   │       └── CustomFilter.java.tpl
-│   ├── java-wrapper-v2/                  # 450+ 메서드 통합 래퍼 모듈 ⭐ 신규
+│   ├── java-wrapper-v2/                  # 480+ 메서드 통합 래퍼 모듈 ⭐ 신규
 │   │   ├── index.js                      # 통합 export (모든 모듈)
 │   │   ├── helpers.js                    # 공통 유틸리티 (getAdminClient, convertToJavaObject)
-│   │   ├── collection.js                 # 컬렉션 관리 (100+ 메서드) - DataSource 추가 ⭐
-│   │   ├── dictionary.js                 # 사전 관리 (130+ 메서드) - UserCnDic/PreMorph 추가 ⭐
+│   │   ├── collection.js                 # 컬렉션 관리 (130+ 메서드) - DBWatcher/Monitor/DataSource ⭐
+│   │   ├── dictionary.js                 # 사전 관리 (130+ 메서드) - UserCnDic/PreMorph ⭐
+│   │   ├── hotspot.js                    # 핫스팟 분석 (30+ 메서드) ⭐ 신규
 │   │   ├── indexing.js                   # 색인 작업 (20+ 메서드)
 │   │   ├── management.js                 # 계정/스케줄/접속/로그 (40+ 메서드)
 │   │   ├── server.js                     # 서버/브로커/리소스 (30+ 메서드)
@@ -49,13 +50,13 @@ search-mcp-node/
 │   │   └── tuning.js                     # 검색 튜닝 (60+ 메서드)
 │   │
 │   └── tools/                            # MCP 도구 정의
-│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 130개+)
-│       └── modules/                      # 기능별 도구 모듈 (19개 + 신규 2개)
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 178개+)
+│       └── modules/                      # 기능별 도구 모듈 (21개 + 신규 4개)
 │           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
 │           ├── columns.js                # 스키마 필드 관리
 │           ├── queries.js                # 저장 쿼리 관리
 │           ├── dict.js                   # 사전 관리
-│           ├── dict-advanced.js          # 고급 사전 (UserCnDic, PreMorph) ⭐ 신규
+│           ├── dict-advanced.js          # 고급 사전 (UserCnDic, PreMorph) (16개) ⭐ 신규
 │           ├── index.js                  # 색인 제어 (Java 네이티브 + REST 폴백)
 │           ├── server.js                 # 서버 설정 (Java 네이티브 + REST 폴백)
 │           ├── logs.js                   # 로그 조회
@@ -69,7 +70,9 @@ search-mcp-node/
 │           ├── hotKeyword.js             # 핫 키워드 관리 (15개 도구)
 │           ├── monitoring.js             # 로그 모니터링 (30개 도구)
 │           ├── tuning.js                 # 검색 튜닝 (30개 도구)
-│           └── datasource.js             # DataSource 관리 (15개 도구) ⭐ 신규
+│           ├── datasource.js             # DataSource 관리 (15개 도구) ⭐ v3.2
+│           ├── collection-monitor.js     # 컬렉션 모니터링 (30개 도구) ⭐ v3.3 신규
+│           └── advanced-search.js        # 고급 검색 (18개 도구) ⭐ v3.3 신규
 │
 ├── config/
 │   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
@@ -963,7 +966,7 @@ schema-from-sql.js (SQL 통합)
 - **코드량**: 약 1,300줄 신규 추가 (admin.js, hotKeyword.js, monitoring.js + java-wrapper-v2 모듈)
 - **특징**: 다중 인스턴스 지원, 모든 메서드에 선택적 instanceId 파라미터
 
-### v3.2 (Mariner5 라이브러리 고급 기능 확장) ⭐ 최신
+### v3.2 (Mariner5 라이브러리 고급 기능 확장)
 
 - **총 도구**: 130개+ (기존 96개 + 신규 34개)
 - **새로 추가된 도구 모듈** (2개):
@@ -976,8 +979,26 @@ schema-from-sql.js (SQL 통합)
   - User CN Dictionary: 중국어/일본어/외국어 유의어 관리
   - User PreMorph: Pre-Morph 형태소 분석 (커스텀 분석기)
   - DataSource: MySQL/Oracle/PostgreSQL 등 외부 DB 연동
-- **코드량**: 약 850줄 신규 추가 (dict-advanced.js 450줄 + datasource.js 380줄 + collection.js/dictionary.js 확장)
+- **코드량**: 약 850줄 신규 추가
 - **특징**: Mariner5 미사용 API 활용, HIGH 우선순위 기능 3개 구현
+
+### v3.3 (MEDIUM 우선순위 기능 완성) ⭐ 최신
+
+- **총 도구**: 178개+ (기존 130개 + 신규 48개)
+- **새로 추가된 도구 모듈** (2개):
+  - collection-monitor.js: 30개 도구 (DBWatcher 고급 8개 + CollectionMonitor 12개 + Topicker 8개) ⭐ 신규
+  - advanced-search.js: 18개 도구 (IntegratedInfo 7개 + SearchRequest 11개) ⭐ 신규
+- **확장된 java-wrapper-v2 모듈** (3개):
+  - collection.js: 100+ → 130+ 메서드 (DBWatcher 고급 8개, CollectionMonitor 10개)
+  - hotspot.js: 30+ 메서드 (Topicker 8개, IntegratedInfo 7개, SearchRequest 8개) ⭐ 신규
+- **신규 기능**:
+  - DBWatcher 고급: 실시간 DB 변경 감지 + 필터링 (8개 도구)
+  - CollectionMonitor: 컬렉션 실시간 모니터링 + 성능 분석 (12개 도구)
+  - Topicker: 상위 키워드/트렌드 분석 (8개 도구)
+  - IntegratedInfo: 서버 통합 정보 조회 (7개 도구)
+  - SearchRequest: 고급 검색 기능 (11개 도구)
+- **코드량**: 약 1,200줄 신규 추가 (collection-monitor.js 650줄 + advanced-search.js 550줄)
+- **특징**: MEDIUM 우선순위 5개 기능 완성, mariner5 API 활용률 80% 이상
 
 ### v2.0 (Extension 자동 생성)
 

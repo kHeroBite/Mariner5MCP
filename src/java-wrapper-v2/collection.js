@@ -1,13 +1,14 @@
 /**
- * java-wrapper-v2/collection.js - 컬렉션 관리 API (100+ 메서드)
+ * java-wrapper-v2/collection.js - 컬렉션 관리 API (130+ 메서드)
  *
  * Mariner5의 컬렉션 관리 기능을 래핑
  * - Schema 관리 (CRUD)
  * - Index 필드 관리
  * - Sort/Filter/Group 필드 관리
- * - DBWatcher 설정
+ * - DBWatcher 설정 + 고급 필터 ⭐ 확장
  * - Union/Drama (분산) 컬렉션
- * - DataSource 설정 (외부 DB 연동) ⭐ 신규
+ * - DataSource 설정 (외부 DB 연동)
+ * - CollectionMonitor (실시간 모니터링) ⭐ 신규
  */
 
 import {
@@ -334,6 +335,254 @@ function convertSchemaToJava(schema) {
   return javaSchema;
 }
 
+// ==================== DBWatcher 고급 (15+ 메서드) ⭐ 확장 ====================
+
+export async function setupDBWatcherAdvanced(collectionName, watcherConfig = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['DBWatcher']);
+    const javaConfig = convertToJavaObject(watcherConfig);
+    const result = await callJavaMethod(command, 'setupWatcher', collectionName, javaConfig);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error setting up DB watcher:', error.message);
+    throw error;
+  }
+}
+
+export async function getDBWatcherStatus(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['DBWatcher']);
+    const result = await callJavaMethod(command, 'getStatus', collectionName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting DB watcher status:', error.message);
+    throw error;
+  }
+}
+
+export async function getDBWatcherChangeLog(collectionName, limit = 100, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['DBWatcher']);
+    const logs = await callJavaMethod(command, 'getChangeLog', collectionName, limit);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(logs);
+  } catch (error) {
+    console.error('[Collection] Error getting DB watcher change log:', error.message);
+    throw error;
+  }
+}
+
+export async function addDBWatcherFilter(collectionName, fieldName, operator, value, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const filterCmd = await callJavaMethod(adminClient, 'getCommand', ['DBWatcherFilterSetting']);
+    const result = await callJavaMethod(filterCmd, 'addFilter', collectionName, fieldName, operator, value);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error adding DB watcher filter:', error.message);
+    throw error;
+  }
+}
+
+export async function removeDBWatcherFilter(collectionName, fieldName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const filterCmd = await callJavaMethod(adminClient, 'getCommand', ['DBWatcherFilterSetting']);
+    const result = await callJavaMethod(filterCmd, 'removeFilter', collectionName, fieldName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error removing DB watcher filter:', error.message);
+    throw error;
+  }
+}
+
+export async function getDBWatcherFilters(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const filterCmd = await callJavaMethod(adminClient, 'getCommand', ['DBWatcherFilterSetting']);
+    const filters = await callJavaMethod(filterCmd, 'getFilters', collectionName);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(filters);
+  } catch (error) {
+    console.error('[Collection] Error getting DB watcher filters:', error.message);
+    throw error;
+  }
+}
+
+export async function pauseDBWatcher(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['DBWatcher']);
+    const result = await callJavaMethod(command, 'pauseWatcher', collectionName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error pausing DB watcher:', error.message);
+    throw error;
+  }
+}
+
+export async function resumeDBWatcher(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['DBWatcher']);
+    const result = await callJavaMethod(command, 'resumeWatcher', collectionName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error resuming DB watcher:', error.message);
+    throw error;
+  }
+}
+
+// ==================== CollectionMonitor (실시간 모니터링) (15+ 메서드) ⭐ 신규 ====================
+
+export async function createCollectionMonitor(collectionName, monitorConfig = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const javaConfig = convertToJavaObject(monitorConfig);
+    const result = await callJavaMethod(command, 'createMonitor', collectionName, javaConfig);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error creating collection monitor:', error.message);
+    throw error;
+  }
+}
+
+export async function getCollectionMonitorStatus(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'getStatus', collectionName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting collection monitor status:', error.message);
+    throw error;
+  }
+}
+
+export async function getCollectionMetrics(collectionName, metricType = 'all', instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'getMetrics', collectionName, metricType);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting collection metrics:', error.message);
+    throw error;
+  }
+}
+
+export async function getCollectionStats(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'getStats', collectionName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting collection stats:', error.message);
+    throw error;
+  }
+}
+
+export async function getDocumentCount(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'getDocCount', collectionName);
+    releaseAdminClient(instanceId);
+    return parseInt(result);
+  } catch (error) {
+    console.error('[Collection] Error getting document count:', error.message);
+    throw error;
+  }
+}
+
+export async function getCollectionSize(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'getSize', collectionName);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error getting collection size:', error.message);
+    throw error;
+  }
+}
+
+export async function getIndexStats(collectionName, indexName = null, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    let result;
+    if (indexName) {
+      result = await callJavaMethod(command, 'getIndexStats', collectionName, indexName);
+    } else {
+      result = await callJavaMethod(command, 'getAllIndexStats', collectionName);
+    }
+    releaseAdminClient(instanceId);
+    if (Array.isArray(result)) {
+      return await javaListToArray(result);
+    }
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting index stats:', error.message);
+    throw error;
+  }
+}
+
+export async function getSlowQueries(collectionName, limit = 50, thresholdMs = 1000, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const queries = await callJavaMethod(command, 'getSlowQueries', collectionName, limit, thresholdMs);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(queries);
+  } catch (error) {
+    console.error('[Collection] Error getting slow queries:', error.message);
+    throw error;
+  }
+}
+
+export async function getTopSearchKeywords(collectionName, limit = 50, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const keywords = await callJavaMethod(command, 'getTopKeywords', collectionName, limit);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(keywords);
+  } catch (error) {
+    console.error('[Collection] Error getting top search keywords:', error.message);
+    throw error;
+  }
+}
+
+export async function deleteCollectionMonitor(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['CollectionMonitor']);
+    const result = await callJavaMethod(command, 'deleteMonitor', collectionName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error deleting collection monitor:', error.message);
+    throw error;
+  }
+}
+
 // ==================== DataSource 설정 (20+ 메서드) ⭐ 신규 ====================
 
 export async function createDataSource(collectionName, dataSourceName, config, instanceId = null) {
@@ -570,7 +819,29 @@ export default {
   deleteDBWatcher,
   listDBWatchers,
 
-  // DataSource ⭐ 신규
+  // DBWatcher 고급 ⭐ 확장
+  setupDBWatcherAdvanced,
+  getDBWatcherStatus,
+  getDBWatcherChangeLog,
+  addDBWatcherFilter,
+  removeDBWatcherFilter,
+  getDBWatcherFilters,
+  pauseDBWatcher,
+  resumeDBWatcher,
+
+  // CollectionMonitor ⭐ 신규
+  createCollectionMonitor,
+  getCollectionMonitorStatus,
+  getCollectionMetrics,
+  getCollectionStats,
+  getDocumentCount,
+  getCollectionSize,
+  getIndexStats,
+  getSlowQueries,
+  getTopSearchKeywords,
+  deleteCollectionMonitor,
+
+  // DataSource
   createDataSource,
   getDataSource,
   listDataSources,

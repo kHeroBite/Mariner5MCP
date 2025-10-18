@@ -17,6 +17,8 @@ import { hotKeyword } from './modules/hotKeyword.js';
 import { monitoring } from './modules/monitoring.js';
 import { tuning } from './modules/tuning.js';
 import { datasource } from './modules/datasource.js';
+import { collectionMonitor } from './modules/collection-monitor.js';
+import { advancedSearch } from './modules/advanced-search.js';
 
 export const tools = {
   ...collections,
@@ -37,5 +39,7 @@ export const tools = {
   ...hotKeyword,
   ...monitoring,
   ...tuning,
-  ...datasource
+  ...datasource,
+  ...collectionMonitor,
+  ...advancedSearch
 };

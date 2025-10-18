@@ -67,12 +67,13 @@ import * as managementMethods from './management.js';
 import * as serverMethods from './server.js';
 import * as monitoringMethods from './monitoring.js';
 import * as tuningMethods from './tuning.js';
+import * as hotspotMethods from './hotspot.js';
 import { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
 
-// Collection Management (80+)
+// Collection Management (130+)
 export * as collection from './collection.js';
 
-// Dictionary Management (100+)
+// Dictionary Management (130+)
 export * as dictionary from './dictionary.js';
 
 // Indexing Management (20+)
@@ -89,6 +90,9 @@ export * as monitoring from './monitoring.js';
 
 // Search Tuning (60+)
 export * as tuning from './tuning.js';
+
+// Hotspot Analytics (30+) ⭐ 신규
+export * as hotspot from './hotspot.js';
 
 // Helpers
 export { getAdminClient, releaseAdminClient, convertToJavaObject };
@@ -136,6 +140,7 @@ export default {
   server: serverMethods,
   monitoring: monitoringMethods,
   tuning: tuningMethods,
+  hotspot: hotspotMethods,
 
   // Helpers
   getAdminClient,
