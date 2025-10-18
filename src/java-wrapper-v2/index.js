@@ -74,6 +74,9 @@ import * as clusterMethods from './cluster.js';
 import * as aggregationMethods from './aggregation.js';
 import * as enrichmentMethods from './enrichment.js';
 import * as analyticsMethods from './analytics.js';
+import * as queryBuilderMethods from './query-builder.js';
+import * as analyzerConfigMethods from './analyzer-config.js';
+import * as sortConfigMethods from './sort-config.js';
 import { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
 
 // Collection Management (130+)
@@ -117,6 +120,15 @@ export * as enrichment from './enrichment.js';
 
 // Advanced Analytics (15+) ⭐ v3.6 신규
 export * as analytics from './analytics.js';
+
+// Query Builder (33+) ⭐ v3.7 신규
+export * as queryBuilder from './query-builder.js';
+
+// Analyzer Configuration (12+) ⭐ v3.7 신규
+export * as analyzerConfig from './analyzer-config.js';
+
+// Sort Configuration (8+) ⭐ v3.7 신규
+export * as sortConfig from './sort-config.js';
 
 // Helpers
 export { getAdminClient, releaseAdminClient, convertToJavaObject };
@@ -171,6 +183,9 @@ export default {
   aggregation: aggregationMethods,
   enrichment: enrichmentMethods,
   analytics: analyticsMethods,
+  queryBuilder: queryBuilderMethods,
+  analyzerConfig: analyzerConfigMethods,
+  sortConfig: sortConfigMethods,
 
   // Helpers
   getAdminClient,

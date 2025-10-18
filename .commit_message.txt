@@ -1,61 +1,53 @@
-[클로드] 🚀 v3.6 분석 기능 구현 완료 (데이터보강/고급분석)
+[클로드] ✨ v3.7 검색품질 및 개발자경험 개선 (Query Builder + Analyzer + Sort)
 
-## 신규 기능 추가 (2개, 30개 도구)
+## 신규 기능 추가 (3개, 33개 도구, 33개 메서드)
 
-### 1. DataEnrichment (데이터 보강) - 15개 도구
-   - 문서 보강 및 외부 데이터 연동
-   - 계산된 필드 추가
-   - 지리데이터 보강
-   - NLP 분석 통합
-   - 데이터 검증
-   - 보강 작업 롤백
-   - 컬렉션 조인 (INNER/LEFT/RIGHT/FULL/CROSS)
-   - 컬렉션 병합 (UPSERT/APPEND/REPLACE/MERGE 전략)
-   - 조인 통계
+### 1. SearchQueryBuilder (Fluent API 검색쿼리 빌더) - 15개 도구
+   - 직관적 Fluent API로 REST API 쿼리 생성
+   - 메서드: from(), select(), where(), filter(), sort(), page(), highlight(), facet()
+   - QueryHelper 유틸리티 (simpleSearch, rangeFilter, complexFilter, pagedSearch)
+   - 자동 검증 및 미리보기 기능
 
-### 2. AdvancedAnalytics (고급 분석) - 15개 도구
-   - 분석 리포트 생성
-   - 피벗 테이블
-   - 시계열 데이터 분석
-   - 회귀 분석
-   - 상관관계 분석
-   - 클러스터링 분석
-   - 이상 탐지
-   - 분석 데이터 내보내기
-   - 사용자 검색 행동 추적
-   - 검색 패턴 분석
-   - 사용자 세그먼테이션
-   - 검색 트렌드 예측
-   - 세션 분석
-   - 행동 인사이트
-   - 추천 인사이트
+### 2. AnalyzerConfig (형태소/바이그램/유니그램 제어) - 12개 도구
+   - 각 필드별 분석기 명시적 선택 가능
+   - setMorphemeAnalyzer, setBigramAnalyzer, setUnigramAnalyzer
+   - testAnalyzer(), compareAnalyzers(), recommendAnalyzer()
+   - 컬렉션 전체 분석기 설정 및 조회
+
+### 3. SortConfig (n차 정렬 우선순위 제어) - 8개 도구
+   - 1차/2차/3차 정렬 명시적 우선순위 설정
+   - setPrimarySort(), addSecondarySort(), addTertiarySort()
+   - setSortPriority(), previewSortResults()
+   - 정렬 설정 검증 및 초기화
 
 ## 구현 내용
 
-### java-wrapper-v2 확장 (30+ 메서드)
-- enrichment.js: 15개 메서드 신규 추가
-- analytics.js: 15개 메서드 신규 추가
+### java-wrapper-v2 확장 (33개 메서드)
+- query-builder.js: SearchQueryBuilder 클래스 + QueryHelper (300줄)
+- analyzer-config.js: 12개 분석기 제어 메서드 (250줄)
+- sort-config.js: 8개 정렬 제어 메서드 (220줄)
 
-### MCP 도구 모듈 신규 (30개 도구, 2,200줄)
-- enrichment-tools.js: 15개 도구 (650줄)
-- analytics-tools.js: 15개 도구 (700줄)
+### MCP 도구 모듈 신규 (33개 도구, 1,500줄)
+- query-builder-tools.js: 15개 도구 (800줄)
+- analyzer-tools.js: 12개 도구 (600줄)
+- sort-tools.js: 8개 도구 (400줄)
 
 ### 통합 및 문서
-- java-wrapper-v2/index.js: 2개 모듈 import & export
-- tools/index.js: 2개 MCP 도구 모듈 등록
-- PROJECT.md: v3.6 기능 정보 추가
+- java-wrapper-v2/index.js: 3개 모듈 import & export 추가
+- tools/index.js: 3개 MCP 도구 모듈 등록
+- PROJECT.md: v3.7 구조 및 통계 업데이트
 
 ## 통계
-- java-wrapper-v2 메서드: 570+ → 630+
-- MCP 도구: 275+ → 325+
-- 신규 코드: 약 2,700줄
-- Mariner5 API 활용률: 98% 달성
+- java-wrapper-v2 메서드: 630+ → 663+ (+33, +5%)
+- MCP 도구: 325+ → 358+ (+33, +10%)
+- 도구 모듈: 30개 → 33개 (+3)
+- 신규 코드: 약 1,500줄
 
 ## 프로젝트 누적 통계
-- 총 MCP 도구: 325+개
-- 총 java-wrapper-v2 메서드: 630+개
-- 총 신규 코드: 약 10,700줄
-- 총 구현 기능: 11개 (HIGH/MEDIUM/LOW + 운영 + 분석)
+- 총 MCP 도구: 358+개
+- 총 java-wrapper-v2 메서드: 663+개
+- 총 신규 코드: 약 12,200줄
+- 총 구현 기능: 14개 (HIGH/MEDIUM/LOW + 운영 + 분석 + 품질)
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 

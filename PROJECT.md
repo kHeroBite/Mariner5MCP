@@ -37,7 +37,7 @@ search-mcp-node/
 │   │   │   └── ExternalDataFetcher.java.tpl
 │   │   └── filter/
 │   │       └── CustomFilter.java.tpl
-│   ├── java-wrapper-v2/                  # 630+ 메서드 통합 래퍼 모듈 ⭐ 신규
+│   ├── java-wrapper-v2/                  # 663+ 메서드 통합 래퍼 모듈 ⭐ 신규 (v3.7: +33)
 │   │   ├── index.js                      # 통합 export (모든 모듈)
 │   │   ├── helpers.js                    # 공통 유틸리티 (getAdminClient, convertToJavaObject)
 │   │   ├── collection.js                 # 컬렉션 관리 (130+ 메서드) - DBWatcher/Monitor/DataSource ⭐
@@ -54,11 +54,14 @@ search-mcp-node/
 │   │   ├── cluster.js                    # 클러스터 관리 (10+ 메서드) ⭐ v3.5
 │   │   ├── aggregation.js                # 데이터 집계 (10+ 메서드) ⭐ v3.5
 │   │   ├── enrichment.js                 # 데이터 보강 (15+ 메서드) ⭐ v3.6 신규
-│   │   └── analytics.js                  # 고급 분석 (15+ 메서드) ⭐ v3.6 신규
+│   │   ├── analytics.js                  # 고급 분석 (15+ 메서드) ⭐ v3.6 신규
+│   │   ├── query-builder.js              # 검색 쿼리 빌더 (Fluent API, SearchQueryBuilder) ⭐ v3.7 신규
+│   │   ├── analyzer-config.js            # Analyzer 설정 (형태소/바이그램/유니그램) (12+ 메서드) ⭐ v3.7 신규
+│   │   └── sort-config.js                # n차 정렬 설정 (1차/2차/3차 우선순위) (8+ 메서드) ⭐ v3.7 신규
 │   │
 │   └── tools/                            # MCP 도구 정의
-│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 325+개)
-│       └── modules/                      # 기능별 도구 모듈 (30개)
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 358+개) ⭐ v3.7
+│       └── modules/                      # 기능별 도구 모듈 (33개) ⭐ v3.7 +3
 │           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
 │           ├── columns.js                # 스키마 필드 관리
 │           ├── queries.js                # 저장 쿼리 관리
@@ -86,7 +89,10 @@ search-mcp-node/
 │           ├── cluster-tools.js          # 클러스터 관리 (10개 도구) ⭐ v3.5
 │           ├── aggregation-tools.js      # 데이터 집계 (10개 도구) ⭐ v3.5
 │           ├── enrichment-tools.js       # 데이터 보강 (15개 도구) ⭐ v3.6 신규
-│           └── analytics-tools.js        # 고급 분석 (15개 도구) ⭐ v3.6 신규
+│           ├── analytics-tools.js        # 고급 분석 (15개 도구) ⭐ v3.6 신규
+│           ├── query-builder-tools.js    # 검색 쿼리 빌더 (15개 도구) ⭐ v3.7 신규
+│           ├── analyzer-tools.js         # Analyzer 설정 (12개 도구) ⭐ v3.7 신규
+│           └── sort-tools.js             # n차 정렬 설정 (8개 도구) ⭐ v3.7 신규
 │
 ├── config/
 │   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
