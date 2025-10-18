@@ -23,6 +23,8 @@ import { advancedFeatures } from './modules/advanced-features.js';
 import { optimization } from './modules/optimization-tools.js';
 import { cluster } from './modules/cluster-tools.js';
 import { aggregation } from './modules/aggregation-tools.js';
+import { enrichment } from './modules/enrichment-tools.js';
+import { analytics } from './modules/analytics-tools.js';
 
 export const tools = {
   ...collections,
@@ -49,5 +51,7 @@ export const tools = {
   ...advancedFeatures,
   ...optimization,
   ...cluster,
-  ...aggregation
+  ...aggregation,
+  ...enrichment,
+  ...analytics
 };

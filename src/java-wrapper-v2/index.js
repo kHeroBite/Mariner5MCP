@@ -72,6 +72,8 @@ import * as advancedMethods from './advanced.js';
 import * as optimizationMethods from './optimization.js';
 import * as clusterMethods from './cluster.js';
 import * as aggregationMethods from './aggregation.js';
+import * as enrichmentMethods from './enrichment.js';
+import * as analyticsMethods from './analytics.js';
 import { getAdminClient, releaseAdminClient, convertToJavaObject } from './helpers.js';
 
 // Collection Management (130+)
@@ -109,6 +111,12 @@ export * as cluster from './cluster.js';
 
 // Data Aggregation (10+) ⭐ v3.5 신규
 export * as aggregation from './aggregation.js';
+
+// Data Enrichment (15+) ⭐ v3.6 신규
+export * as enrichment from './enrichment.js';
+
+// Advanced Analytics (15+) ⭐ v3.6 신규
+export * as analytics from './analytics.js';
 
 // Helpers
 export { getAdminClient, releaseAdminClient, convertToJavaObject };
@@ -161,6 +169,8 @@ export default {
   optimization: optimizationMethods,
   cluster: clusterMethods,
   aggregation: aggregationMethods,
+  enrichment: enrichmentMethods,
+  analytics: analyticsMethods,
 
   // Helpers
   getAdminClient,

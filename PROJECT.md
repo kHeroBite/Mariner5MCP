@@ -37,7 +37,7 @@ search-mcp-node/
 │   │   │   └── ExternalDataFetcher.java.tpl
 │   │   └── filter/
 │   │       └── CustomFilter.java.tpl
-│   ├── java-wrapper-v2/                  # 570+ 메서드 통합 래퍼 모듈 ⭐ 신규
+│   ├── java-wrapper-v2/                  # 630+ 메서드 통합 래퍼 모듈 ⭐ 신규
 │   │   ├── index.js                      # 통합 export (모든 모듈)
 │   │   ├── helpers.js                    # 공통 유틸리티 (getAdminClient, convertToJavaObject)
 │   │   ├── collection.js                 # 컬렉션 관리 (130+ 메서드) - DBWatcher/Monitor/DataSource ⭐
@@ -50,13 +50,15 @@ search-mcp-node/
 │   │   ├── tuning.js                     # 검색 튜닝 (60+ 메서드)
 │   │   ├── advanced.js                   # 고급 기능 (50+ 메서드) ⭐ v3.4
 │   │   │                                 #   - VectorSearch/Union/Drama
-│   │   ├── optimization.js               # 쿼리 최적화 (10+ 메서드) ⭐ v3.5 신규
-│   │   ├── cluster.js                    # 클러스터 관리 (10+ 메서드) ⭐ v3.5 신규
-│   │   └── aggregation.js                # 데이터 집계 (10+ 메서드) ⭐ v3.5 신규
+│   │   ├── optimization.js               # 쿼리 최적화 (10+ 메서드) ⭐ v3.5
+│   │   ├── cluster.js                    # 클러스터 관리 (10+ 메서드) ⭐ v3.5
+│   │   ├── aggregation.js                # 데이터 집계 (10+ 메서드) ⭐ v3.5
+│   │   ├── enrichment.js                 # 데이터 보강 (15+ 메서드) ⭐ v3.6 신규
+│   │   └── analytics.js                  # 고급 분석 (15+ 메서드) ⭐ v3.6 신규
 │   │
 │   └── tools/                            # MCP 도구 정의
-│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 275+개)
-│       └── modules/                      # 기능별 도구 모듈 (28개)
+│       ├── index.js                      # 도구 레지스트리 (모든 도구 export, 325+개)
+│       └── modules/                      # 기능별 도구 모듈 (30개)
 │           ├── collections.js            # 컬렉션 관리 (Java 네이티브 + REST 폴백)
 │           ├── columns.js                # 스키마 필드 관리
 │           ├── queries.js                # 저장 쿼리 관리
@@ -80,9 +82,11 @@ search-mcp-node/
 │           ├── advanced-search.js        # 고급 검색 (18개 도구) ⭐ v3.3
 │           ├── advanced-features.js      # 고급 기능 (25개 도구) ⭐ v3.4
 │           │                             #   - VectorSearch (8개) / Union (7개) / Drama (10개)
-│           ├── optimization-tools.js     # 쿼리 최적화 (10개 도구) ⭐ v3.5 신규
-│           ├── cluster-tools.js          # 클러스터 관리 (10개 도구) ⭐ v3.5 신규
-│           └── aggregation-tools.js      # 데이터 집계 (10개 도구) ⭐ v3.5 신규
+│           ├── optimization-tools.js     # 쿼리 최적화 (10개 도구) ⭐ v3.5
+│           ├── cluster-tools.js          # 클러스터 관리 (10개 도구) ⭐ v3.5
+│           ├── aggregation-tools.js      # 데이터 집계 (10개 도구) ⭐ v3.5
+│           ├── enrichment-tools.js       # 데이터 보강 (15개 도구) ⭐ v3.6 신규
+│           └── analytics-tools.js        # 고급 분석 (15개 도구) ⭐ v3.6 신규
 │
 ├── config/
 │   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
