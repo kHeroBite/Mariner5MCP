@@ -179,31 +179,132 @@ export function getJVMStatus() {
  * node-java의 클래스 로딩 최적화를 위해 사용할 클래스 사전 등록
  */
 export const javaClasses = {
-  // AdminServer 클래스
+  // ==================== AdminServer 핵심 클래스 ====================
   AdminServerClient: null,
+
+  // ==================== Command 클래스 (컬렉션 관리) ====================
+  CommandCollection: null,
+  CommandSchemaSetting: null,
+  CommandSortSetting: null,
+  CommandAdvancedSetting: null,
+  CommandIndexDBManagement: null,
+  CommandDBWatcher: null,
+  CommandDataSourceSetting: null,
+  CommandDBWatcherFilterSetting: null,
+  CommandIndexKeyList: null,
+  CommandDrama: null,
+  CommandTopicker: null,
+  CommandVectorSearchConfig: null,
+  CommandUnion: null,
+  CommandCollectionMonitor: null,
+
+  // ==================== Command 클래스 (사전 관리) ====================
+  CommandUserDic: null,
+  CommandUserCnDic: null,
+  CommandUserSwDic: null,
+  CommandUserPreMorph: null,
+  CommandBannedWord: null,
+  CommandStopword: null,
+  CommandRedirect: null,
+  CommandRecommend: null,
+  CommandThesaurus: null,
+  CommandCategoryRanking: null,
+  CommandDocumentRanking: null,
+  CommandKeywordProfile: null,
+
+  // ==================== Command 클래스 (검색 튜닝/프로파일) ====================
+  CommandProfile: null,
+  CommandSearchSimulation: null,
   CommandSearchRequest: null,
+  CommandIntegratedInfo: null,
+
+  // ==================== Command 클래스 (시스템 관리) ====================
+  CommandScheduleTask: null,
+  CommandServerSetting: null,
+  CommandBrokerSetting: null,
+  CommandLogSetting: null,
+  CommandSystemManagement: null,
+  CommandReport: null,
+  CommandStatus: null,
+  CommandGetDashBoardResource: null,
+
+  // ==================== Command 클래스 (기존) ====================
   CommandCollectionInfoServer: null,
   CommandIndexTaskServer: null,
   CommandSimulationQueryManagement: null,
-  CommandSearchSimulation: null,
 
-  // 검색 요청/응답 클래스
+  // ==================== DB Handler 클래스 (핵심 관리) ====================
+  AuthorityDB: null,
+  ScheduleTaskDB: null,
+  AccountManagementDB: null,
+  WebManagerPropertiesDB: null,
+  IndexLogDB: null,
+  IndexingJobDB: null,
+
+  // ==================== DB Handler 클래스 (사전 관리) ====================
+  UserDicDB: null,
+  ThesaurusDB: null,
+  BannedWordDB: null,
+  StopwordDB: null,
+  RedirectDB: null,
+  RecommendDB: null,
+  CategoryRankingDB: null,
+  DocumentRankingDB: null,
+  KeywordProfileDB: null,
+  CategoryUpdateSettingDB: null,
+
+  // ==================== DB Handler 클래스 (컬렉션/모니터링) ====================
+  CollectionGroupDB: null,
+  TrendsSettingDB: null,
+  TrendsDeleteDB: null,
+  RecommendUpdateSettingDB: null,
+
+  // ==================== DB Handler 클래스 (로그/분석) ====================
+  FullQueryLogDB: null,
+  TimeoutQueryLogDB: null,
+  PopularQueryLogDB: null,
+  ZeitgeistQueryLogDB: null,
+  FailQueryLogDB: null,
+  JobLogDB: null,
+  ErrorLogDB: null,
+  NoticeLogDB: null,
+  MonitorAlarmLogDB: null,
+  QueryLogGroupDB: null,
+  RapidFreqIndexKeywordDB: null,
+
+  // ==================== Entity 클래스 ====================
+  Member: null,
+  ScheduleTask: null,
+  CollectionMonitor: null,
+  CollectionAuthoritySet: null,
+  CollectionInfo: null,
+  CollectionSetting: null,
+  CollectionType: null,
+  SchemaSetting: null,
+  DefaultProfileInfo: null,
+  MonitorAlarmLog: null,
+
+  // ==================== Utility 클래스 ====================
+  JSonBuilder: null,
+  RequestHandler: null,
+  JobDescription: null,
+  ConnectionFactory: null,
+  RdbmsProperties: null,
+
+  // ==================== 기본 Java 클래스 ====================
+  ArrayList: null,
+  HashMap: null,
+  String: null,
+
+  // ==================== 검색 관련 클래스 ====================
   SearchRequest: null,
   SearchResult: null,
   QuerySet: null,
 
-  // 컬렉션 관리 클래스
-  CollectionInfo: null,
+  // ==================== 컬렉션 관리 클래스 ====================
   CollectionManager: null,
-
-  // 색인 관리 클래스
   IndexInfo: null,
-  IndexManager: null,
-
-  // 기본 클래스
-  ArrayList: null,
-  HashMap: null,
-  String: null
+  IndexManager: null
 };
 
 /**
@@ -259,12 +360,105 @@ export async function initializeJavaClasses() {
 
     // 주요 클래스 로드 (재시도 로직 포함)
     const classesToLoad = [
+      // AdminServer
       { name: 'AdminServerClient', class: 'com.diquest.ir5.client.command.AdminServerClient' },
+
+      // Command - 컬렉션 관리 (15개)
+      { name: 'CommandCollection', class: 'com.diquest.ir5.client.command.collection.CommandCollection' },
+      { name: 'CommandSchemaSetting', class: 'com.diquest.ir5.client.command.collection.CommandSchemaSetting' },
+      { name: 'CommandSortSetting', class: 'com.diquest.ir5.client.command.collection.CommandSortSetting' },
+      { name: 'CommandAdvancedSetting', class: 'com.diquest.ir5.client.command.collection.CommandAdvancedSetting' },
+      { name: 'CommandIndexDBManagement', class: 'com.diquest.ir5.client.command.collection.CommandIndexDBManagement' },
+      { name: 'CommandDBWatcher', class: 'com.diquest.ir5.client.command.collection.CommandDBWatcher' },
+      { name: 'CommandDataSourceSetting', class: 'com.diquest.ir5.client.command.collection.CommandDataSourceSetting' },
+      { name: 'CommandDBWatcherFilterSetting', class: 'com.diquest.ir5.client.command.collection.CommandDBWatcherFilterSetting' },
+      { name: 'CommandIndexKeyList', class: 'com.diquest.ir5.client.command.collection.CommandIndexKeyList' },
+      { name: 'CommandDrama', class: 'com.diquest.ir5.client.command.collection.CommandDrama' },
+      { name: 'CommandTopicker', class: 'com.diquest.ir5.client.command.collection.CommandTopicker' },
+      { name: 'CommandVectorSearchConfig', class: 'com.diquest.ir5.client.command.collection.CommandVectorSearchConfig' },
+      { name: 'CommandUnion', class: 'com.diquest.ir5.client.command.collection.CommandUnion' },
+      { name: 'CommandCollectionMonitor', class: 'com.diquest.ir5.client.command.collection.CommandCollectionMonitor' },
+
+      // Command - 사전 관리 (12개)
+      { name: 'CommandUserDic', class: 'com.diquest.ir5.client.command.dictionary.CommandUserDic' },
+      { name: 'CommandUserCnDic', class: 'com.diquest.ir5.client.command.dictionary.CommandUserCnDic' },
+      { name: 'CommandUserSwDic', class: 'com.diquest.ir5.client.command.dictionary.CommandUserSwDic' },
+      { name: 'CommandUserPreMorph', class: 'com.diquest.ir5.client.command.dictionary.CommandUserPreMorph' },
+      { name: 'CommandBannedWord', class: 'com.diquest.ir5.client.command.dictionary.CommandBannedWord' },
+      { name: 'CommandStopword', class: 'com.diquest.ir5.client.command.dictionary.CommandStopword' },
+      { name: 'CommandRedirect', class: 'com.diquest.ir5.client.command.dictionary.CommandRedirect' },
+      { name: 'CommandRecommend', class: 'com.diquest.ir5.client.command.dictionary.CommandRecommend' },
+      { name: 'CommandThesaurus', class: 'com.diquest.ir5.client.command.dictionary.CommandThesaurus' },
+      { name: 'CommandCategoryRanking', class: 'com.diquest.ir5.client.command.dictionary.CommandCategoryRanking' },
+      { name: 'CommandDocumentRanking', class: 'com.diquest.ir5.client.command.dictionary.CommandDocumentRanking' },
+      { name: 'CommandKeywordProfile', class: 'com.diquest.ir5.client.command.dictionary.CommandKeywordProfile' },
+
+      // Command - 검색 튜닝/프로파일 (4개)
+      { name: 'CommandProfile', class: 'com.diquest.ir5.client.command.profile.CommandProfile' },
+      { name: 'CommandSearchSimulation', class: 'com.diquest.ir5.client.command.CommandSearchSimulation' },
       { name: 'CommandSearchRequest', class: 'com.diquest.ir5.client.command.CommandSearchRequest' },
+      { name: 'CommandIntegratedInfo', class: 'com.diquest.ir5.client.command.CommandIntegratedInfo' },
+
+      // Command - 시스템 관리 (8개)
+      { name: 'CommandScheduleTask', class: 'com.diquest.ir5.client.command.CommandScheduleTask' },
+      { name: 'CommandServerSetting', class: 'com.diquest.ir5.client.command.CommandServerSetting' },
+      { name: 'CommandBrokerSetting', class: 'com.diquest.ir5.client.command.CommandBrokerSetting' },
+      { name: 'CommandLogSetting', class: 'com.diquest.ir5.client.command.CommandLogSetting' },
+      { name: 'CommandSystemManagement', class: 'com.diquest.ir5.client.command.CommandSystemManagement' },
+      { name: 'CommandReport', class: 'com.diquest.ir5.client.command.CommandReport' },
+      { name: 'CommandStatus', class: 'com.diquest.ir5.client.command.CommandStatus' },
+      { name: 'CommandGetDashBoardResource', class: 'com.diquest.ir5.client.command.CommandGetDashBoardResource' },
+
+      // Command - 기존 (3개)
       { name: 'CommandCollectionInfoServer', class: 'com.diquest.ir5.client.command.CommandCollectionInfoServer' },
       { name: 'CommandIndexTaskServer', class: 'com.diquest.ir5.client.command.CommandIndexTaskServer' },
       { name: 'CommandSimulationQueryManagement', class: 'com.diquest.ir5.client.command.CommandSimulationQueryManagement' },
-      { name: 'CommandSearchSimulation', class: 'com.diquest.ir5.client.command.CommandSearchSimulation' }
+
+      // DB Handlers - 핵심 (6개)
+      { name: 'AuthorityDB', class: 'com.diquest.ir5.common.database.handler.AuthorityDB' },
+      { name: 'ScheduleTaskDB', class: 'com.diquest.ir5.common.database.handler.ScheduleTaskDB' },
+      { name: 'AccountManagementDB', class: 'com.diquest.ir5.common.database.handler.AccountManagementDB' },
+      { name: 'WebManagerPropertiesDB', class: 'com.diquest.ir5.common.database.handler.WebManagerPropertiesDB' },
+      { name: 'IndexLogDB', class: 'com.diquest.ir5.common.database.handler.IndexLogDB' },
+      { name: 'IndexingJobDB', class: 'com.diquest.ir5.common.database.handler.IndexingJobDB' },
+
+      // DB Handlers - 사전 (10개)
+      { name: 'UserDicDB', class: 'com.diquest.ir5.common.database.handler.UserDicDB' },
+      { name: 'ThesaurusDB', class: 'com.diquest.ir5.common.database.handler.ThesaurusDB' },
+      { name: 'BannedWordDB', class: 'com.diquest.ir5.common.database.handler.BannedWordDB' },
+      { name: 'StopwordDB', class: 'com.diquest.ir5.common.database.handler.StopwordDB' },
+      { name: 'RedirectDB', class: 'com.diquest.ir5.common.database.handler.RedirectDB' },
+      { name: 'RecommendDB', class: 'com.diquest.ir5.common.database.handler.RecommendDB' },
+      { name: 'CategoryRankingDB', class: 'com.diquest.ir5.common.database.handler.CategoryRankingDB' },
+      { name: 'DocumentRankingDB', class: 'com.diquest.ir5.common.database.handler.DocumentRankingDB' },
+      { name: 'KeywordProfileDB', class: 'com.diquest.ir5.common.database.handler.KeywordProfileDB' },
+      { name: 'CategoryUpdateSettingDB', class: 'com.diquest.ir5.common.database.handler.CategoryUpdateSettingDB' },
+
+      // DB Handlers - 컬렉션/모니터링 (4개)
+      { name: 'CollectionGroupDB', class: 'com.diquest.ir5.common.database.handler.CollectionGroupDB' },
+      { name: 'TrendsSettingDB', class: 'com.diquest.ir5.common.database.handler.TrendsSettingDB' },
+      { name: 'TrendsDeleteDB', class: 'com.diquest.ir5.common.database.handler.TrendsDeleteDB' },
+      { name: 'RecommendUpdateSettingDB', class: 'com.diquest.ir5.common.database.handler.RecommendUpdateSettingDB' },
+
+      // DB Handlers - 로그/분석 (11개)
+      { name: 'FullQueryLogDB', class: 'com.diquest.ir5.common.database.handler.FullQueryLogDB' },
+      { name: 'TimeoutQueryLogDB', class: 'com.diquest.ir5.common.database.handler.TimeoutQueryLogDB' },
+      { name: 'PopularQueryLogDB', class: 'com.diquest.ir5.common.database.handler.PopularQueryLogDB' },
+      { name: 'ZeitgeistQueryLogDB', class: 'com.diquest.ir5.common.database.handler.ZeitgeistQueryLogDB' },
+      { name: 'FailQueryLogDB', class: 'com.diquest.ir5.common.database.handler.FailQueryLogDB' },
+      { name: 'JobLogDB', class: 'com.diquest.ir5.common.database.handler.JobLogDB' },
+      { name: 'ErrorLogDB', class: 'com.diquest.ir5.common.database.handler.ErrorLogDB' },
+      { name: 'NoticeLogDB', class: 'com.diquest.ir5.common.database.handler.NoticeLogDB' },
+      { name: 'MonitorAlarmLogDB', class: 'com.diquest.ir5.common.database.handler.MonitorAlarmLogDB' },
+      { name: 'QueryLogGroupDB', class: 'com.diquest.ir5.common.database.handler.QueryLogGroupDB' },
+      { name: 'RapidFreqIndexKeywordDB', class: 'com.diquest.ir5.common.database.handler.RapidFreqIndexKeywordDB' },
+
+      // Utility 클래스 (5개)
+      { name: 'JSonBuilder', class: 'com.diquest.ir5.util.common.JSonBuilder' },
+      { name: 'RequestHandler', class: 'com.diquest.ir5.client.util.RequestHandler' },
+      { name: 'JobDescription', class: 'com.diquest.ir5.client.util.JobDescription' },
+      { name: 'ConnectionFactory', class: 'com.diquest.ir5.common.database.factory.ConnectionFactory' },
+      { name: 'RdbmsProperties', class: 'com.diquest.ir5.common.database.config.RdbmsProperties' }
     ];
 
     for (const { name, class: className } of classesToLoad) {
