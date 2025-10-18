@@ -1,5 +1,5 @@
 /**
- * java-wrapper-v2/collection.js - 컬렉션 관리 API (80+ 메서드)
+ * java-wrapper-v2/collection.js - 컬렉션 관리 API (100+ 메서드)
  *
  * Mariner5의 컬렉션 관리 기능을 래핑
  * - Schema 관리 (CRUD)
@@ -7,6 +7,7 @@
  * - Sort/Filter/Group 필드 관리
  * - DBWatcher 설정
  * - Union/Drama (분산) 컬렉션
+ * - DataSource 설정 (외부 DB 연동) ⭐ 신규
  */
 
 import {
@@ -333,6 +334,194 @@ function convertSchemaToJava(schema) {
   return javaSchema;
 }
 
+// ==================== DataSource 설정 (20+ 메서드) ⭐ 신규 ====================
+
+export async function createDataSource(collectionName, dataSourceName, config, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const javaConfig = convertToJavaObject(config);
+    const result = await callJavaMethod(dataSetting, 'addDataSource', collectionName, dataSourceName, javaConfig);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error creating data source:', error.message);
+    throw error;
+  }
+}
+
+export async function getDataSource(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'getDataSource', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting data source:', error.message);
+    throw error;
+  }
+}
+
+export async function listDataSources(collectionName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const sources = await callJavaMethod(dataSetting, 'getDataSourceList', collectionName);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(sources);
+  } catch (error) {
+    console.error('[Collection] Error listing data sources:', error.message);
+    throw error;
+  }
+}
+
+export async function updateDataSource(collectionName, dataSourceName, config, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const javaConfig = convertToJavaObject(config);
+    const result = await callJavaMethod(dataSetting, 'modifyDataSource', collectionName, dataSourceName, javaConfig);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error updating data source:', error.message);
+    throw error;
+  }
+}
+
+export async function deleteDataSource(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'removeDataSource', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error deleting data source:', error.message);
+    throw error;
+  }
+}
+
+export async function testDataSourceConnection(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'testConnection', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error testing data source connection:', error.message);
+    throw error;
+  }
+}
+
+export async function enableDataSource(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'enableDataSource', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error enabling data source:', error.message);
+    throw error;
+  }
+}
+
+export async function disableDataSource(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'disableDataSource', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Collection] Error disabling data source:', error.message);
+    throw error;
+  }
+}
+
+export async function getDataSourceStatus(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'getStatus', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting data source status:', error.message);
+    throw error;
+  }
+}
+
+export async function createDataSourceMapping(collectionName, dataSourceName, fieldMappings = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const javaMapping = convertToJavaObject(fieldMappings);
+    const result = await callJavaMethod(dataSetting, 'setFieldMapping', collectionName, dataSourceName, javaMapping);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error creating data source mapping:', error.message);
+    throw error;
+  }
+}
+
+export async function getDataSourceMapping(collectionName, dataSourceName, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'getFieldMapping', collectionName, dataSourceName);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Collection] Error getting data source mapping:', error.message);
+    throw error;
+  }
+}
+
+export async function syncDataSourceData(collectionName, dataSourceName, options = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const javaOptions = convertToJavaObject(options);
+    const result = await callJavaMethod(dataSetting, 'syncData', collectionName, dataSourceName, javaOptions);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Collection] Error syncing data source:', error.message);
+    throw error;
+  }
+}
+
+export async function getDataSourceSyncLog(collectionName, dataSourceName, limit = 100, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const logs = await callJavaMethod(dataSetting, 'getSyncLog', collectionName, dataSourceName, limit);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(logs);
+  } catch (error) {
+    console.error('[Collection] Error getting data source sync log:', error.message);
+    throw error;
+  }
+}
+
+export async function testDataSourceQuery(collectionName, dataSourceName, query, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const dataSetting = await callJavaMethod(adminClient, 'getCommand', ['DataSourceSetting']);
+    const result = await callJavaMethod(dataSetting, 'testQuery', collectionName, dataSourceName, query);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(result);
+  } catch (error) {
+    console.error('[Collection] Error testing data source query:', error.message);
+    throw error;
+  }
+}
+
 function convertToJavaObject(obj) {
   if (obj === null || obj === undefined) {
     return null;
@@ -379,5 +568,21 @@ export default {
   deleteGroupField,
   createDBWatcher,
   deleteDBWatcher,
-  listDBWatchers
+  listDBWatchers,
+
+  // DataSource ⭐ 신규
+  createDataSource,
+  getDataSource,
+  listDataSources,
+  updateDataSource,
+  deleteDataSource,
+  testDataSourceConnection,
+  enableDataSource,
+  disableDataSource,
+  getDataSourceStatus,
+  createDataSourceMapping,
+  getDataSourceMapping,
+  syncDataSourceData,
+  getDataSourceSyncLog,
+  testDataSourceQuery
 };

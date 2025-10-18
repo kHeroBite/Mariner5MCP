@@ -1,30 +1,37 @@
-[클로드] 📚 프로젝트 문서 업데이트 및 tuning 모듈 추가
+[클로드] 🚀 Mariner5 고급 기능 3개 MCP 추가 (v3.2)
 
-## 변경 사항
+## 신규 기능 추가
 
-### 1. PROJECT.md 종합 업데이트
-- java-wrapper-v2 모듈 구조 추가 (7개 모듈, 400+ 메서드)
-- 신규 MCP 도구 모듈 3개 문서화 (admin, hotKeyword, monitoring)
-- 프로젝트 구조도 최신화 (java-wrapper-v2 디렉토리 추가)
-- v3.1 프로젝트 통계 추가
-- 전체 아키텍처 설명 갱신
+### 1. User CN Dictionary (UserCnDic) - 7개 도구
+   - 중국어/일본어/외국어 유의어 관리
+   - 생성/조회/수정/삭제/일괄 처리
+   - 자세한 항목 조회 지원
 
-### 2. tuning.js MCP 도구 모듈 생성
-- 검색 프로파일 관리 (5개 도구)
-- QuerySet 관리 (6개 도구)
-- 랭킹 모델 설정 (3개 도구)
-- 필터/정렬/그룹/검색 필드 설정 (4개 도구)
-- 총 30개 도구
+### 2. User PreMorph (Pre-Morph 형태소 분석) - 9개 도구
+   - 커스텀 형태소 분석기 관리
+   - 생성/조회/수정/삭제/테스트
+   - 일괄 처리 및 적용 기능
 
-### 3. tools/index.js 업데이트
-- tuning 모듈 import 및 export 등록
+### 3. DataSource (외부 DB 연동) - 15개 도구
+   - MySQL, Oracle, PostgreSQL 등 지원
+   - 연결 설정/테스트/관리
+   - 필드 매핑 및 데이터 동기화
+   - 동기화 로그 조회
 
-## 최종 상태
-- **MCP 도구 모듈**: 15개 (기존 11개 + 신규 admin + hotKeyword + monitoring + tuning)
-- **총 MCP 도구**: 126개 (기존 11개 + 40 + 15 + 30 + 30)
-- **java-wrapper-v2 메서드**: 400+
-- **문서**: 완전히 최신화됨
+## 구현 내용
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+### java-wrapper-v2 확장
+- collection.js: 80+ → 100+ 메서드 (DataSource 20+ 추가)
+- dictionary.js: 100+ → 130+ 메서드 (UserCnDic 7개, UserPreMorph 8개 추가)
 
+### MCP 도구 모듈 신규
+- dict-advanced.js: 고급 사전 관리 (16개 도구)
+- datasource.js: 외부 DB 연동 (15개 도구)
+
+### 총계
+- 신규 도구: 34개 (96 → 130+)
+- 신규 코드: 약 850줄
+- 마리너5 미사용 API 활용: HIGH 우선순위 3개 기능 구현
+
+🤖 Generated with Claude Code
 Co-Authored-By: Claude <noreply@anthropic.com>

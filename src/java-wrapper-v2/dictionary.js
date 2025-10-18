@@ -1,11 +1,13 @@
 /**
- * java-wrapper-v2/dictionary.js - 사전 관리 API (100+ 메서드)
+ * java-wrapper-v2/dictionary.js - 사전 관리 API (130+ 메서드)
  *
  * 모든 사전 타입 관리:
  * - User Dictionary, Stopword, Banned Word
  * - Thesaurus (EQ/QS), Recommendation, Redirect
  * - Document/Category Ranking, Keyword Profile
  * - Pre-Morph Dictionary
+ * - User CN Dictionary (중국어/일본어/외국어 유의어) ⭐ 신규
+ * - User PreMorph (Pre-Morph 형태소 분석) ⭐ 신규
  */
 
 import {
@@ -440,6 +442,214 @@ export async function applyKeywordProfile(collectionId, profileId, instanceId = 
   }
 }
 
+// ==================== User CN Dictionary (중국어/일본어/외국어) (15+ 메서드) ⭐ 신규 ====================
+
+export async function createUserCnDicEntry(collectionId, profileId, keyword, cnKeyword, posTag = 'NN', data = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const result = await callJavaMethod(command, 'addEntry', collectionId, profileId, keyword, cnKeyword, posTag, convertToJavaObject(data));
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error creating user CN dic entry:', error.message);
+    throw error;
+  }
+}
+
+export async function deleteUserCnDicEntry(collectionId, profileId, keyword, cnKeyword, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const result = await callJavaMethod(command, 'removeEntry', collectionId, profileId, keyword, cnKeyword);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Dictionary] Error deleting user CN dic entry:', error.message);
+    throw error;
+  }
+}
+
+export async function listUserCnDicEntries(collectionId, profileId, keyword = null, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    let entries;
+    if (keyword) {
+      entries = await callJavaMethod(command, 'getEntries', collectionId, profileId, keyword);
+    } else {
+      entries = await callJavaMethod(command, 'getEntries', collectionId, profileId);
+    }
+    releaseAdminClient(instanceId);
+    return await javaListToArray(entries);
+  } catch (error) {
+    console.error('[Dictionary] Error listing user CN dic entries:', error.message);
+    throw error;
+  }
+}
+
+export async function getDetailedUserCnDicEntry(collectionId, profileId, keyword, cnKeyword, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const result = await callJavaMethod(command, 'getEntry', collectionId, profileId, keyword, cnKeyword);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Dictionary] Error getting detailed user CN dic entry:', error.message);
+    throw error;
+  }
+}
+
+export async function updateUserCnDicEntry(collectionId, profileId, keyword, cnKeyword, posTag = 'NN', data = {}, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const result = await callJavaMethod(command, 'updateEntry', collectionId, profileId, keyword, cnKeyword, posTag, convertToJavaObject(data));
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error updating user CN dic entry:', error.message);
+    throw error;
+  }
+}
+
+export async function applyUserCnDictionary(collectionId, profileId, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const result = await callJavaMethod(command, 'apply', collectionId, profileId);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Dictionary] Error applying user CN dictionary:', error.message);
+    throw error;
+  }
+}
+
+export async function bulkCreateUserCnDicEntries(collectionId, profileId, entries = [], instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserCnDic']);
+    const entryList = convertToJavaObject(entries);
+    const result = await callJavaMethod(command, 'bulkAdd', collectionId, profileId, entryList);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error bulk creating user CN dic entries:', error.message);
+    throw error;
+  }
+}
+
+// ==================== User PreMorph Dictionary (형태소 분석) (15+ 메서드) ⭐ 신규 ====================
+
+export async function createUserPreMorphEntry(collectionId, profileId, keyword, morphs = [], posTag = 'NN', instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const morphList = convertToJavaObject(morphs);
+    const result = await callJavaMethod(command, 'addEntry', collectionId, profileId, keyword, morphList, posTag);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error creating user pre-morph entry:', error.message);
+    throw error;
+  }
+}
+
+export async function deleteUserPreMorphEntry(collectionId, profileId, keyword, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const result = await callJavaMethod(command, 'removeEntry', collectionId, profileId, keyword);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Dictionary] Error deleting user pre-morph entry:', error.message);
+    throw error;
+  }
+}
+
+export async function listUserPreMorphEntries(collectionId, profileId, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const entries = await callJavaMethod(command, 'getEntries', collectionId, profileId);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(entries);
+  } catch (error) {
+    console.error('[Dictionary] Error listing user pre-morph entries:', error.message);
+    throw error;
+  }
+}
+
+export async function getDetailedUserPreMorphEntry(collectionId, profileId, keyword, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const result = await callJavaMethod(command, 'getEntry', collectionId, profileId, keyword);
+    releaseAdminClient(instanceId);
+    return javaMapToObject(result);
+  } catch (error) {
+    console.error('[Dictionary] Error getting detailed user pre-morph entry:', error.message);
+    throw error;
+  }
+}
+
+export async function updateUserPreMorphEntry(collectionId, profileId, keyword, morphs = [], posTag = 'NN', instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const morphList = convertToJavaObject(morphs);
+    const result = await callJavaMethod(command, 'updateEntry', collectionId, profileId, keyword, morphList, posTag);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error updating user pre-morph entry:', error.message);
+    throw error;
+  }
+}
+
+export async function applyUserPreMorph(collectionId, profileId, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const result = await callJavaMethod(command, 'apply', collectionId, profileId);
+    releaseAdminClient(instanceId);
+    return result === true || result === 'true';
+  } catch (error) {
+    console.error('[Dictionary] Error applying user pre-morph:', error.message);
+    throw error;
+  }
+}
+
+export async function testUserPreMorphAnalysis(collectionId, profileId, keyword, instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const result = await callJavaMethod(command, 'analyzeKeyword', collectionId, profileId, keyword);
+    releaseAdminClient(instanceId);
+    return await javaListToArray(result);
+  } catch (error) {
+    console.error('[Dictionary] Error testing user pre-morph analysis:', error.message);
+    throw error;
+  }
+}
+
+export async function bulkCreateUserPreMorphEntries(collectionId, profileId, entries = [], instanceId = null) {
+  try {
+    const adminClient = getAdminClient(instanceId);
+    const command = await callJavaMethod(adminClient, 'getCommand', ['UserPreMorph']);
+    const entryList = convertToJavaObject(entries);
+    const result = await callJavaMethod(command, 'bulkAdd', collectionId, profileId, entryList);
+    releaseAdminClient(instanceId);
+    return result;
+  } catch (error) {
+    console.error('[Dictionary] Error bulk creating user pre-morph entries:', error.message);
+    throw error;
+  }
+}
+
 export default {
   // User Dictionary
   createUserDicEntry,
@@ -488,5 +698,24 @@ export default {
   // Keyword Profile
   createKeywordProfileEntry,
   deleteKeywordProfileEntry,
-  applyKeywordProfile
+  applyKeywordProfile,
+
+  // User CN Dictionary ⭐ 신규
+  createUserCnDicEntry,
+  deleteUserCnDicEntry,
+  listUserCnDicEntries,
+  getDetailedUserCnDicEntry,
+  updateUserCnDicEntry,
+  applyUserCnDictionary,
+  bulkCreateUserCnDicEntries,
+
+  // User PreMorph ⭐ 신규
+  createUserPreMorphEntry,
+  deleteUserPreMorphEntry,
+  listUserPreMorphEntries,
+  getDetailedUserPreMorphEntry,
+  updateUserPreMorphEntry,
+  applyUserPreMorph,
+  testUserPreMorphAnalysis,
+  bulkCreateUserPreMorphEntries
 };
