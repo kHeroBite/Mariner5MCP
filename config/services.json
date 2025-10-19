@@ -1,0 +1,26 @@
+{
+  "derby": {
+    "installed": false,
+    "path": "",
+    "port": 1527,
+    "dataPath": ""
+  },
+  "search": {
+    "installed": false,
+    "path": "",
+    "port": 5555,
+    "configPath": ""
+  },
+  "rest": {
+    "installed": false,
+    "path": "",
+    "port": 8080,
+    "configPath": ""
+  },
+  "tomcat": {
+    "installed": false,
+    "path": "",
+    "port": 9090,
+    "webappsPath": ""
+  }
+}

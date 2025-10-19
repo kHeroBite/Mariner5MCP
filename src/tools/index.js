@@ -23,6 +23,7 @@ import { advancedFeatures } from './modules/advanced-features.js';
 import { queryBuilder } from './modules/query-builder-tools.js';
 import { analyzerTools } from './modules/analyzer-tools.js';
 import { sortTools } from './modules/sort-tools.js';
+import { setup } from './modules/setup.js';
 
 export const tools = {
   ...collections,
@@ -49,5 +50,6 @@ export const tools = {
   ...advancedFeatures,
   ...queryBuilder,
   ...analyzerTools,
-  ...sortTools
+  ...sortTools,
+  ...setup
 };

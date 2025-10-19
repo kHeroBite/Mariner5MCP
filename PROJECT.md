@@ -83,10 +83,12 @@ mariner5-mcp/
 │           │                             #   - VectorSearch (8개) / Union (7개) / Drama (10개)
 │           ├── query-builder-tools.js    # 검색 쿼리 빌더 (15개 도구) ⭐ v3.7 신규
 │           ├── analyzer-tools.js         # Analyzer 설정 (12개 도구) ⭐ v3.7 신규
-│           └── sort-tools.js             # n차 정렬 설정 (8개 도구) ⭐ v3.7 신규
+│           ├── sort-tools.js             # n차 정렬 설정 (8개 도구) ⭐ v3.7 신규
+│           └── setup.js                  # 서비스 설치/구동 관리 (Derby/Search/REST/Tomcat) ⭐ v3.8 신규
 │
 ├── config/
-│   └── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
+│   ├── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
+│   └── services.json                     # 서비스 설치 정보 (Derby/Search/REST/Tomcat) ⭐ v3.8 신규
 │
 ├── .env                                  # 환경변수 (MARINER5_HOME, IR5_HOME 등)
 ├── .env.example                          # 환경변수 템플릿
@@ -487,6 +489,74 @@ Java 플러그인 관리 + 자동 생성/컴파일 파이프라인
 - **codegen.page.java.create** : Java 검색 페이지 생성
 - **codegen.page.java.preview** : 미리보기
 - **codegen.page.java.params** : 파라미터 설정
+
+#### setup.js ⭐ v3.8 신규
+서비스 설치/구동 관리 (Derby DB, 검색엔진, REST 서버, Tomcat)
+
+**7가지 도구**:
+- **setup.detect** : 설치된 서비스 자동 탐지 (경로, 버전, 상태)
+- **setup.install** : 서비스 설치 (로컬 ZIP, URL 다운로드, 이미 설치된 경로 등록)
+- **setup.configure** : 서비스 설정 (포트, 경로, 옵션)
+- **setup.start** : 서비스 시작 (개별 또는 전체)
+- **setup.stop** : 서비스 중지 (개별 또는 전체)
+- **setup.status** : 서비스 상태 확인 (실행 여부, PID, 포트)
+- **setup.logs** : 서비스 로그 조회 (최근 N줄)
+
+**지원 서비스**:
+| 서비스 | 기본 포트 | 역할 |
+|--------|---------|------|
+| Derby DB | 1527 | 검색엔진 메타데이터 저장 |
+| Search Engine | 5555 | Mariner5 검색엔진 (AdminServer) |
+| REST Server | 8080 | REST API 서버 |
+| Tomcat | 9090 | 웹 애플리케이션 서버 |
+
+**사용 예시**:
+```javascript
+// 1) 서비스 상태 확인
+{"method":"setup.status","params":{}}
+
+// 2) 검색엔진 설치 (이미 설치된 경로 등록)
+{"method":"setup.install","params":{
+  "service":"search",
+  "sourceType":"installed",
+  "source":"C:\\SearchEngine",
+  "port":5555
+}}
+
+// 3) URL에서 다운로드 및 설치
+{"method":"setup.install","params":{
+  "service":"tomcat",
+  "sourceType":"url",
+  "source":"https://example.com/tomcat.zip",
+  "targetPath":"C:\\Services\\tomcat"
+}}
+
+// 4) 모든 서비스 시작
+{"method":"setup.start","params":{"service":"all"}}
+
+// 5) 검색엔진 로그 조회 (최근 100줄)
+{"method":"setup.logs","params":{"service":"search","lines":100}}
+```
+
+**설정 파일** (config/services.json):
+```json
+{
+  "derby": {
+    "installed": true,
+    "path": "C:\\Derby",
+    "port": 1527,
+    "dataPath": "C:\\Derby\\data"
+  },
+  "search": {
+    "installed": true,
+    "path": "C:\\SearchEngine",
+    "port": 5555,
+    "configPath": "C:\\SearchEngine\\config"
+  },
+  "rest": {...},
+  "tomcat": {...}
+}
+```
 
 #### schema-from-sql.js ⭐ 신규 + Extension 통합
 SQL 쿼리 기반 자동 컬렉션 생성 + Extension 자동 생성/적용
