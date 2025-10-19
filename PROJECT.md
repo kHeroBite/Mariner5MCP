@@ -1,21 +1,22 @@
-# PROJECT.md - search-mcp-node 프로젝트 문서
+# PROJECT.md - mariner5-mcp 프로젝트 문서
 
-기업형 검색엔진을 통합 관리하는 **Node.js 기반 MCP(Model Context Protocol) 서버**의 아키텍처 및 구조 문서입니다.
+**Mariner5 기업형 검색엔진**을 완벽하게 제어하는 **Node.js 기반 MCP(Model Context Protocol) 서버**의 아키텍처 및 구조 문서입니다.
 
 ## 📋 프로젝트 메타정보
 
 ```yaml
-프로젝트명: search-mcp-node
-타입: Node.js MCP 서버 (stdin/stdout JSON-RPC)
-버전: 1.0.0
-런타임: Node.js (ES Module)
+프로젝트명: mariner5-mcp
+타입: Node.js MCP 서버 (stdin/stdout JSON-RPC + Java JNI)
+버전: 3.8.0
+런타임: Node.js 16.0.0 이상 (ES Module)
 패키지관리자: npm
+핵심_특징: Java 네이티브 + REST API 폴백, 멀티 인스턴스 지원, Extension 자동 생성
 ```
 
 ## 📁 프로젝트 구조
 
 ```
-search-mcp-node/
+mariner5-mcp/
 ├── src/                                  # 소스 코드 디렉토리
 │   ├── server.js                         # JSON-RPC 서버 메인 엔트리포인트
 │   ├── http.js                           # Axios HTTP 클라이언트 + 인터셉터 (레거시 지원)

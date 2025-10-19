@@ -1,6 +1,6 @@
-# CLAUDE.md - search-mcp-node AI 작업 지침서
+# CLAUDE.md - mariner5-mcp AI 작업 지침서
 
-이 문서는 Claude Code가 search-mcp-node 프로젝트에서 작업할 때 필요한 모든 정보를 포함합니다.
+이 문서는 Claude Code가 mariner5-mcp 프로젝트에서 작업할 때 필요한 모든 정보를 포함합니다.
 
 ## 공통 명령어 참조
 
@@ -21,6 +21,8 @@
   컬렉션_조회: echo '{"id":1,"method":"collections.list","params":{}}' | npm start
   색인_실행: echo '{"id":2,"method":"index.run","params":{"collection":"demo","type":"rebuild"}}' | npm start
   검색: echo '{"id":3,"method":"search.query","params":{"querySet":{...}}}' | npm start
+  서버_관리: echo '{"id":4,"method":"admin.listUsers","params":{}}' | npm start
+  확장기능: echo '{"id":5,"method":"ext.templates","params":{}}' | npm start
 
 ntfy_알림:
   명령어: |

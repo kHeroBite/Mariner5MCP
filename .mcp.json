@@ -1,5 +1,16 @@
 {
   "mcpServers": {
+    "mariner5-mcp": {
+      "command": "node",
+      "args": ["C:\\DATA\\Project\\mariner5-mcp\\src\\server.js"],
+      "env": {
+        "MARINER5_HOME": "C:\\DATA\\Project\\mariner5",
+        "MARINER5_HOST": "localhost",
+        "MARINER5_PORT": "5555",
+        "BASE_URL": "http://localhost:8080/api",
+        "LOG_LEVEL": "info"
+      }
+    },
     "mysql": {
       "command": "node",
       "args": ["C:\\MCP-Servers\\mysql-mcp-server\\dist\\index.js"],
