@@ -97,7 +97,8 @@ mariner5-mcp/
 ├── package-lock.json                     # npm 잠금파일
 ├── CLAUDE.md                             # AI 작업 지침 문서
 ├── PROJECT.md                            # 이 파일 (프로젝트 구조)
-└── README.md                             # 사용자 가이드
+├── README.md                             # 사용자 가이드
+└── API-REFERENCE.md                      # REST API 레퍼런스 문서 ⭐ v3.8 신규
 ```
 
 ## 🔧 핵심 컴포넌트
@@ -1107,7 +1108,12 @@ schema-from-sql.js (SQL 통합)
 
 - [README.md](./README.md) - 사용 가이드
 - [CLAUDE.md](./CLAUDE.md) - AI 작업 지침
-- 검색엔진 REST API 문서 (BASE_URL 참조)
+- [API-REFERENCE.md](./API-REFERENCE.md) - REST API 완벽 가이드 ⭐ 신규
+  - 서버 설정 및 라이브러리
+  - 전체 엔드포인트 목록 (컬렉션/검색/색인/사전/Extension/로그)
+  - 요청/응답 예시
+  - QuerySet 구조
+  - 에러 코드 정의
 
 ## 📊 프로젝트 통계
 
