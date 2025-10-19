@@ -1,6 +1,6 @@
 {
   "name": "mariner5-mcp",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "Mariner5 Enterprise Search Engine MCP (Model Context Protocol) Server - Node.js based JSON-RPC interface with Java JNI support",
   "author": "Mariner5 Contributors",
   "license": "MIT",
