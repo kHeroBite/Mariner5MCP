@@ -599,35 +599,96 @@ SQL 쿼리 기반 자동 컬렉션 생성 + Extension 자동 생성/적용
 
 ## 🌊 데이터 흐름
 
-### v2.0 Java 네이티브 아키텍처 (현재)
+### 개발 환경: Claude Code → mariner5-mcp → mariner5 엔진
 
 ```
 Claude Code (MCP Client)
     ↓
-  stdin ← JSON-RPC 요청
+  stdin ← JSON-RPC 요청 (method: "collections.create", params: {...})
     ↓
-server.js: handleLine()
-    ├─ initializeJava() [시작 시]
-    │   ├─ java-bridge.js: initializeJavaClasses()
-    │   └─ java-wrapper.js: connectToAdminServer()
-    ↓
-tools[method].handler(params)
-    ↓
-tools/modules/*.js: 입력 검증 (AJV)
-    ├─ Try Java: java-wrapper.js 메서드 호출
-    │   ├─ java-bridge.js: JNI를 통한 Java 메서드 호출
-    │   ├─ Mariner5 AdminServerClient (localhost:5555)
-    │   └─ 결과를 JavaScript 객체로 변환
+mariner5-mcp Server (Node.js):
+    ├─ 1. handleLine(): JSON-RPC 파싱
+    ├─ 2. tools[method].handler(): 입력 검증 (AJV 스키마)
+    ├─ 3. java-wrapper.js: 메서드 호출 결정
+    │   │
+    │   ├─ Try 1: java-bridge.js (JNI 네이티브)
+    │   │   ├─ AdminServerClient 획득
+    │   │   ├─ mariner5 엔진으로 직접 호출 (포트 5555)
+    │   │   └─ 성공 → 응답 반환
+    │   │
+    │   └─ Fallback: http.js (REST API)
+    │       ├─ BASE_URL + 엔드포인트
+    │       ├─ mariner5 REST Server 호출 (포트 8080)
+    │       └─ 응답 반환
     │
-    └─ Fallback REST API (Java 실패 시)
-        ├─ http.js: 검색엔진 REST API 호출
-        └─ BASE_URL 기반 엔드포인트
+    ├─ 4. 응답 포맷팅 (success/error)
+    ├─ 5. stdout → JSON 응답
+    │
+    └─ 관리도구용DB 업데이트 (필요시)
+        ├─ 색인 상태 저장
+        ├─ 컬렉션 메타데이터
+        └─ 작업 로그
     ↓
-응답 처리 & 포맷팅
+stdout ← JSON 응답 (result: {...} 또는 error: {...})
     ↓
-stdout → JSON 응답
+Claude Code에서 결과 해석 및 다음 작업 수행
+```
+
+### 실 환경 (검색): Java 애플리케이션 → mariner5 REST API
+
+```
+사용자 ← 웹 브라우저
+    ↓ HTTP GET/POST
+Java 검색페이지:
+    ├─ SearchController.java
+    └─ MarinerSearchClient.java
+       ├─ BASE_URL = "http://mariner5-server:8080/api"
+       └─ REST API 호출
+    ↓ HTTP JSON
+mariner5 REST Server (포트 8080):
+    ├─ 검색 요청 처리
+    ├─ Analyzer로 형태소 분석
+    ├─ 검색 알고리즘 실행
+    ├─ 랭킹 계산
+    └─ 결과 정렬
     ↓
-Claude Code에 반환
+실데이터용DB (MySQL):
+    └─ 대규모 데이터셋 쿼리
+    ↓
+JSON 응답 (검색 결과)
+    ↓
+Java 검색페이지에서 렌더링
+    ↓
+HTML ← 웹 브라우저에 표시
+```
+
+### 실 환경 (관리도구): webManager → mariner5 JNI
+
+```
+관리자 ← 웹 브라우저
+    ↓ HTTP GET/POST
+Tomcat:
+    └─ webManager (포트 8888)
+       └─ AdminUI.java
+    ↓ JNI 호출
+mariner5 AdminServerClient (포트 5555):
+    ├─ JNI 브릿지로 직접 통신 (빠름)
+    ├─ 컬렉션 관리
+    ├─ 색인 제어
+    ├─ 사전 관리
+    └─ 모니터링
+    ↓
+mariner5 엔진 (메모리)
+    └─ 실시간 결과 반환
+    ↓
+관리도구용DB (Derby/MySQL):
+    ├─ UI 상태 저장
+    ├─ 설정 정보
+    └─ 모니터링 로그
+    ↓
+JSON 응답
+    ↓
+HTML ← webManager UI 렌더링
 ```
 
 ### v1.0 REST API 아키텍처 (레거시)

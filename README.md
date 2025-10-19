@@ -17,11 +17,25 @@
 - **SQL 통합**: SQL 쿼리로 자동 컬렉션 생성
 - **코드 생성**: 검색 웹페이지 Java 소스 생성
 
+## 🏗️ 시스템 아키텍처
+
+```
+개발 환경 (Claude Code ↔ mariner5-mcp ↔ mariner5 엔진)
+   ↓ 자동 생성/배포
+실 환경 (Java 검색앱 또는 관리도구)
+```
+
+**자세한 내용**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+
+- **개발**: Claude Code + mariner5-mcp로 검색 인덱스 자동 관리
+- **검색**: Java 애플리케이션 + mariner5 REST API
+- **관리**: Tomcat + webManager + mariner5 JNI
+
 ## 설치
 ```bash
 npm i
 cp .env.example .env
-# .env의 BASE_URL, API_TOKEN을 실제 API에 맞게 설정
+# .env의 MARINER5_HOME, BASE_URL을 실제 환경에 맞게 설정
 ```
 
 ## 실행 (stdin/stdout JSON-RPC)
@@ -35,13 +49,21 @@ npm start
 ```
 
 ## 주요 환경변수
-- `BASE_URL` : 백엔드 검색엔진 REST API 베이스 URL
-- `API_TOKEN`: 인증 토큰(있을 경우)
-- `HTTP_TIMEOUT`: HTTP 타임아웃(ms)
-- `LOG_LEVEL`: debug|info|warn|error
 
-## 엔드포인트 매핑
-`config/endpoints.json`에서 실제 엔진의 REST 경로로 교체하면 됩니다.
+```bash
+# mariner5 연결 (필수)
+MARINER5_HOME=C:\DATA\Project\mariner5   # 설치 경로
+MARINER5_HOST=localhost                   # AdminServer 호스트
+MARINER5_PORT=5555                        # AdminServer 포트
+
+# REST API 폴백 (선택)
+BASE_URL=http://localhost:8080/api
+API_TOKEN=                                # 인증 토큰 (없으면 생략)
+HTTP_TIMEOUT=60000                        # 밀리초
+
+# 로그
+LOG_LEVEL=info                            # debug|info|warn|error
+```
 
 ## 제공 도구(메서드명)
 - collections.* : create/update/delete/get/list
