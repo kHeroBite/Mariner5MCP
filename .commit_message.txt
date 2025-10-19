@@ -1,83 +1,33 @@
-[클로드] 🔒 v3.8 Mariner5 AdminServerClient 프로토콜 100% 안전화
+[클로드] 📦 v3.8 npm 배포판 설정 (mariner5-mcp 패키지 등록)
 
-## 목표: Mariner5 AdminServerClient 프로토콜 100% 커버리지 달성
+npm install로 설치 가능한 범용 배포판으로 전환:
 
-### v3.7 정리 및 안정화 작업
+### 변경사항
+- package.json: 메타데이터 추가 및 배포 구조 정의
+  * name: "search-mcp-node" → "mariner5-mcp"
+  * bin 필드: mariner5/mariner5-mcp 명령어 등록
+  * main/files 필드: 배포할 파일 지정
+  * scripts: postinstall 훅 추가 (환경 설정 안내)
+  * keywords/homepage/repository/engines 추가
 
-#### 1. 안전하지 않은 모듈 제거 (5개)
-   - ❌ optimization.js - 미존재 Command 클래스 제거
-   - ❌ cluster.js - 미존재 Command 클래스 제거
-   - ❌ aggregation.js - 미존재 Command 클래스 제거
-   - ❌ enrichment.js - 미존재 Command 클래스 제거
-   - ❌ analytics.js - 미존재 Command 클래스 제거
+- bin/mariner5.js: 전역 실행 스크립트 (fork 기반 entry point)
+  * shebang(#!/usr/bin/env node) 포함
+  * 신호 처리 (SIGTERM/SIGINT)
 
-   MCP 도구 모듈도 함께 제거:
-   - ❌ optimization-tools.js
-   - ❌ cluster-tools.js
-   - ❌ aggregation-tools.js
-   - ❌ enrichment-tools.js
-   - ❌ analytics-tools.js
+- bin/postinstall.js: 설치 후 환경 설정 안내
+  * .env 파일 자동 생성 (from .env.example)
+  * 설정 방법 및 실행 방법 안내
 
-#### 2. 누락된 Command 기능 구현
+### 검증 완료
+- ✅ npm install: 0 vulnerabilities
+- ✅ npm link/unlink: 전역 바이너리 등록 검증 완료
+- ✅ which mariner5: /c/Users/rioky/AppData/Roaming/npm/mariner5 (PATH 확인)
 
-##### CommandIndexKeyList 구현 (복합 인덱스 키 관리)
-   - indexing.js에 5개 메서드 추가:
-     * listIndexKeys() - 복합 인덱스 키 목록 조회
-     * addIndexKey() - 복합 인덱스 키 추가
-     * removeIndexKey() - 복합 인덱스 키 제거
-     * updateIndexKey() - 복합 인덱스 키 업데이트
-     * validateIndexKey() - 복합 인덱스 키 검증
-
-##### CommandStatus 고급 기능 구현 (상세 상태 조회)
-   - server.js에 5개 메서드 추가:
-     * getDetailedStatus() - 상세한 서버 상태 조회
-     * getThreadDump() - JVM 스레드 덤프
-     * getResourceUsage() - 시스템 리소스 사용률 (상세)
-     * getHealthStatus() - 서버 헬스 체크 (상세)
-     * getConnectionStatus() - 네트워크 연결 상태 조회
-
-#### 3. 통합 업데이트
-   - java-wrapper-v2/index.js: 5개 미사용 모듈 import 제거
-   - tools/index.js: 5개 미사용 도구 모듈 제거
-   - PROJECT.md: 완전 정리 및 v3.8 통계 반영
-
-## 통계 및 검증
-
-### Mariner5 AdminServerClient 프로토콜 커버리지
-- **이전**: 51% (22/43 실제 Command 클래스)
-- **현재**: 100% (43/43 안전한 Command 클래스)
-- **제거**: 5개 미존재 Command 모듈 (안전성 확보)
-
-### 메서드 통계
-- java-wrapper-v2 메서드: 663+ → 678+ (+15개)
-  * indexing.js: +5 (CommandIndexKeyList)
-  * server.js: +5 (CommandStatus 고급)
-  * 기타: +5 (버그 수정 및 최적화)
-- MCP 도구: 358개 유지 (통합으로 인한 정리)
-- 도구 모듈: 33개 → 28개 (-5개, 안전성으로 인한 감소)
-
-### 코드 품질
-- ✅ 모든 JavaScript 파일 구문 검증 완료
-- ✅ npm install 성공 (0 vulnerabilities)
-- ✅ 타입 안전성 확보 (미존재 Command 제거)
-- ✅ 프로토콜 100% 검증됨
-
-## v3.8 최종 상태
-
-| 항목 | 이전 | 현재 | 변화 |
-|------|------|------|------|
-| 총 Command 클래스 | 43 | 43 | - |
-| 실제 사용 중 | 22 | 43 | +21 |
-| 안전한 커버리지 | 51% | 100% | +49% |
-| java-wrapper 메서드 | 663 | 678 | +15 |
-| MCP 도구 | 358 | 358 | - |
-| 도구 모듈 | 33 | 28 | -5 |
-
-## 검증 완료
-- ✅ Java 구문 검증: 15/15 파일
-- ✅ npm 의존성: 0 vulnerabilities
-- ✅ 모듈 통합: 완성
-- ✅ Mariner5 프로토콜: 100% 안전화
+### npm으로 설치 가능
+```bash
+npm install -g mariner5-mcp
+mariner5  # 또는 mariner5-mcp
+```
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
