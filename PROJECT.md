@@ -84,7 +84,8 @@ mariner5-mcp/
 │           ├── query-builder-tools.js    # 검색 쿼리 빌더 (15개 도구) ⭐ v3.7 신규
 │           ├── analyzer-tools.js         # Analyzer 설정 (12개 도구) ⭐ v3.7 신규
 │           ├── sort-tools.js             # n차 정렬 설정 (8개 도구) ⭐ v3.7 신규
-│           └── setup.js                  # 서비스 설치/구동 관리 (Derby/Search/REST/Tomcat) ⭐ v3.8 신규
+│           ├── setup.js                  # 서비스 설치/구동 관리 (Derby/Search/REST/Tomcat) ⭐ v3.8 신규
+│           └── webmanager.js             # Tomcat/webManager 설정 (4개 도구) ⭐ v3.8 신규
 │
 ├── config/
 │   ├── endpoints.json                    # REST 엔드포인트 매핑 설정 (레거시)
@@ -557,6 +558,37 @@ Java 플러그인 관리 + 자동 생성/컴파일 파이프라인
   "tomcat": {...}
 }
 ```
+
+#### webmanager.js ⭐ v3.8 신규
+Tomcat 관리도구(webManager) 자동 설정
+
+**4가지 도구**:
+- **webmanager.validate** : 설정 파일 경로 검증 (Tomcat, webManager, server.xml, common.jsp)
+- **webmanager.serverXml.configure** : Tomcat server.xml 수정 (Context 추가, contextPath=/mariner5)
+- **webmanager.commonJsp.configure** : common.jsp 수정 (검색엔진 위치/IP/PORT)
+- **webmanager.setup** : server.xml + common.jsp 한번에 설정
+
+**설정 방법**:
+1. webapps 아래로 복사하지 않음
+2. server.xml에 Context 추가 (docBase=mariner5\webManager, path=/mariner5)
+3. common.jsp에서 검색엔진 설정 (host/port/path)
+
+**사용 예시**:
+```javascript
+// 1) 설정 검증
+{"method":"webmanager.validate","params":{"tomcatPath":"C:\\Apache\\tomcat","webManagerPath":"C:\\mariner5\\webManager"}}
+
+// 2) server.xml 수정
+{"method":"webmanager.serverXml.configure","params":{"tomcatPath":"C:\\Apache\\tomcat","webManagerPath":"C:\\mariner5\\webManager","contextPath":"/mariner5"}}
+
+// 3) common.jsp 수정
+{"method":"webmanager.commonJsp.configure","params":{"webManagerPath":"C:\\mariner5\\webManager","searchEngineHost":"localhost","searchEnginePort":8080}}
+
+// 4) 한번에 설정
+{"method":"webmanager.setup","params":{"tomcatPath":"C:\\Apache\\tomcat","webManagerPath":"C:\\mariner5\\webManager","contextPath":"/mariner5","searchEngineHost":"localhost","searchEnginePort":8080}}
+```
+
+**접속 URL**: `http://localhost:8080/mariner5`
 
 #### schema-from-sql.js ⭐ 신규 + Extension 통합
 SQL 쿼리 기반 자동 컬렉션 생성 + Extension 자동 생성/적용

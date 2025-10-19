@@ -1,35 +1,26 @@
-[클로드] 🔧 서비스 설치/구동 관리 시스템 추가 (setup 도구)
+[클로드] ⚙️ webManager 관리도구 자동 설정 시스템 추가 (claude-sonnet-4-5-20250929)
 
-Derby DB, 검색엔진, REST 서버, Tomcat을 MCP로 관리할 수 있는 setup 도구 모듈을 추가합니다.
+Tomcat server.xml 및 common.jsp를 자동으로 수정하는 webManager 설정 도구를 추가합니다.
 
 ### 변경사항
 
-**1. setup 도구 모듈 추가** (src/tools/modules/setup.js):
-- 7가지 도구: detect, install, configure, start, stop, status, logs
-- 로컬/URL 기반 설치 지원 (ZIP 압축 해제)
-- 프로세스 시작/중지 (백그라운드 실행)
-- 포트 기반 상태 확인 (netstat)
-- 서비스 로그 조회 (tail)
+**1. webmanager 도구 모듈 추가** (src/tools/modules/webmanager.js):
+- 4가지 도구: validate, serverXml.configure, commonJsp.configure, setup
+- Tomcat server.xml Context 추가 (webapps 복사 불필요)
+- common.jsp 검색엔진 설정 자동 수정
+- 접속 URL: http://localhost:8080/mariner5
 
-**2. 서비스 설정 파일** (config/services.json):
-- Derby DB (포트 1527)
-- Search Engine (포트 5555)
-- REST Server (포트 8080)
-- Tomcat (포트 9090)
-- 경로, 포트, 설치 상태 관리
+**2. tools/index.js 업데이트**:
+- webmanager 모듈 import 및 export 추가
 
-**3. 의존성 추가**:
-- adm-zip (^0.5.10): ZIP 압축 해제
+**3. 문서 업데이트** (PROJECT.md):
+- webmanager.js 도구 설명 추가 (4가지 메서드)
+- 설정 방법 및 사용 예시 추가
 
-**4. 문서 업데이트** (PROJECT.md):
-- setup.js 도구 설명 추가
-- 7가지 도구 메서드 및 사용 예시
-- config/services.json 구조 설명
-
-### 목표
-- 검색엔진 미설치 환경에서도 MCP 정상 연결
-- 설치부터 구동까지 전체 라이프사이클 자동화
-- 경로 기반 서비스 관리 (포트 없이도 동작)
+### 주요 기능
+- server.xml Context 자동 추가 (path=/mariner5, docBase=절대경로)
+- common.jsp 검색엔진 위치/IP/PORT 자동 설정
+- 설정 파일 경로 검증 (Tomcat, webManager, server.xml, common.jsp)
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
