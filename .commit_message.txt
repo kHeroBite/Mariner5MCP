@@ -1,31 +1,71 @@
-[클로드] 📖 REST API 완벽 레퍼런스 문서 추가 (claude-sonnet-4-5-20250929)
+[클로드] 🔧 MPC 도구 통합 - Mariner5 자동 설정 시스템 완성 (claude-sonnet-4-5-20250929)
 
-Mariner5 REST API의 모든 엔드포인트를 상세하게 문서화한 API-REFERENCE.md를 추가합니다.
+Mariner5 SETUP.md 매뉴얼의 MPC(Mariner5 Project Configuration) 도구 기능을 mariner5-mcp에 완벽 통합하여 검색엔진 설정을 자동화합니다.
 
-### 변경사항
+### 주요 기능 (4개 신규 도구)
 
-**1. REST API 레퍼런스 문서** (API-REFERENCE.md):
-- 서버 설정 (restServer 포트 5001, AdminServer 5555)
-- 필수 라이브러리 목록 (m5_client.jar, m5_rest.jar 등)
-- 전체 엔드포인트 문서화 (컬렉션/검색/색인/사전/Extension/로그/서버)
-- 요청/응답 예시 (curl 명령어 포함)
-- QuerySet 구조 상세 설명
-- 에러 코드 정의
+**1. setup.mpc.detectJava** - Java 자동 감지
+- 환경변수 (JAVA_HOME) 우선 확인
+- which java 명령어 (Linux/Mac)
+- Windows Registry 탐색 (HKLM\SOFTWARE\JavaSoft)
+- 결과: Java 경로, 버전 정보
 
-**2. PROJECT.md 업데이트**:
-- API-REFERENCE.md 참조 링크 추가
-- 프로젝트 구조에 API-REFERENCE.md 추가
+**2. setup.mpc.listRdbms** - RDBMS 템플릿 목록
+- 지원 DB: Derby, H2, MySQL, MariaDB, Oracle, PostgreSQL, SQL Server
+- 템플릿 정보: 드라이버 클래스, 기본 URL, 포트, 계정정보
 
-### 주요 섹션
-- 서버 설정 및 시작 (rest.conf)
-- 필수 라이브러리 9개 (m5_*.jar)
-- 컬렉션 관리 (6개 API)
-- 검색 (QuerySet 구조)
-- 색인 (3개 API)
-- 사전 관리 (5개 API)
-- Extension (5개 API)
-- 로그 (3개 API)
-- 서버 관리 (2개 API)
+**3. setup.mpc.configure** - 설정 파일 자동 생성
+- startup.properties: Mariner5 서버 설정 (경로, 디버그, 포트, 메모리)
+- ir.rdbms.properties: JDBC 연결 설정 (드라이버, URL, 커넥션풀)
+- 타임스탬프, 주석, 최적 설정값 포함
+- rdbms 디렉토리 자동 생성
+
+**4. setup.mpc.verify** - Mariner5 설정 검증
+- 6가지 체크: Mariner5 경로, serverManager, startup.properties, rdbms, ir.rdbms.properties, Java
+- 상태: OK/FAIL
+- 종합 결과: 모든 검증 통과 여부
+
+### 기술적 개선
+
+**RDBMS 템플릿 시스템**:
+- 7가지 DB별 기본 설정 (드라이버, URL, 포트, 계정)
+- 사용자 지정 설정 병합 (customConfig)
+- 커넥션 풀 자동 설정 (minSize: 5, maxSize: 20)
+
+**설정 파일 생성**:
+- 타임스탬프 자동 추가
+- 주석 상세 (경로, 디버그, 로그, 포트, 메모리)
+- Windows 경로 이스케이프 처리 (\\ → \\\\)
+
+### 문서 업데이트
+
+**README.md**:
+- MPC 도구 섹션 추가 (4개 메서드)
+- 테스트 예시 추가 (Java 감지, RDBMS 목록, 자동 설정, 검증)
+
+**setup.js**:
+- 453줄 → 725줄 (272줄 추가)
+- RDBMS_TEMPLATES 상수 (77줄)
+- detectJavaHome() 함수 (46줄)
+- generateStartupProperties() 함수 (31줄)
+- generateRdbmsProperties() 함수 (23줄)
+- 4개 MPC 도구 핸들러 (183줄)
+
+### 사용 예시
+
+```bash
+# Java 자동 감지
+echo '{"id":1,"method":"setup.mpc.detectJava","params":{}}' | npm start
+
+# RDBMS 템플릿 목록
+echo '{"id":2,"method":"setup.mpc.listRdbms","params":{}}' | npm start
+
+# Mariner5 자동 설정 (Derby)
+echo '{"id":3,"method":"setup.mpc.configure","params":{"mariner5Home":"C:\\mariner5","rdbmsType":"derby"}}' | npm start
+
+# 설정 검증
+echo '{"id":4,"method":"setup.mpc.verify","params":{"mariner5Home":"C:\\mariner5"}}' | npm start
+```
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 

@@ -66,6 +66,13 @@ LOG_LEVEL=info                            # debug|info|warn|error
 ```
 
 ## 제공 도구(메서드명)
+- **setup.mpc.***: Java 감지, RDBMS 선택, 설정 파일 자동 생성 (MPC 도구) ⭐ 신규
+  - setup.mpc.detectJava: Java 자동 감지
+  - setup.mpc.listRdbms: 7가지 RDBMS 템플릿 목록
+  - setup.mpc.configure: startup.properties + ir.rdbms.properties 자동 생성
+  - setup.mpc.verify: Mariner5 설정 검증
+- **setup.***: 서비스 설치/구동 관리 (Derby/Search/REST/Tomcat)
+- **webmanager.***: Tomcat 관리도구 자동 설정
 - collections.* : create/update/delete/get/list
 - columns.*     : add/update/delete/list
 - queries.*     : create/update/delete/list/test
@@ -79,6 +86,23 @@ LOG_LEVEL=info                            # debug|info|warn|error
 - codegen.page.java.* : create/preview/params
 
 ## 테스트 예시
+
+### MPC 도구 (Mariner5 자동 설정) ⭐ 신규
+```bash
+# 1) Java 자동 감지
+echo '{"id":1,"method":"setup.mpc.detectJava","params":{}}' | npm start
+
+# 2) RDBMS 템플릿 목록 (Derby, MySQL, Oracle 등 7가지)
+echo '{"id":2,"method":"setup.mpc.listRdbms","params":{}}' | npm start
+
+# 3) Mariner5 자동 설정 (startup.properties + ir.rdbms.properties 생성)
+echo '{"id":3,"method":"setup.mpc.configure","params":{"mariner5Home":"C:\\DATA\\Project\\mariner5","rdbmsType":"derby","debug":false}}' | npm start
+
+# 4) 설정 검증
+echo '{"id":4,"method":"setup.mpc.verify","params":{"mariner5Home":"C:\\DATA\\Project\\mariner5"}}' | npm start
+```
+
+### 기본 도구
 ```bash
 # 1) 검색
 echo '{ "id":1, "method":"search.query", "params":{"querySet":{"version":"1.0","query":[{"fromSet":{"collection":["demo"]},"selectSet":{"fields":["*"]},"whereSet":{"operator":"AND","searchKeyword":"테스트"}}]}} }' | npm start

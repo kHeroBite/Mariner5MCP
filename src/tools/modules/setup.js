@@ -14,6 +14,68 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const configPath = path.join(__dirname, '../../../config/services.json');
 const execAsync = promisify(exec);
 
+const MARINER5_HOME = process.env.MARINER5_HOME || process.env.IR5_HOME || 'C:\\DATA\\Project\\mariner5';
+
+// RDBMS 템플릿 (7가지)
+const RDBMS_TEMPLATES = {
+  derby: {
+    name: 'Derby (임베디드)',
+    driverClass: 'org.apache.derby.jdbc.ClientDriver',
+    urlTemplate: 'jdbc:derby://127.0.0.1:1527/mariner5',
+    username: 'dba',
+    password: '1111',
+    port: 1527
+  },
+  h2: {
+    name: 'H2 Database',
+    driverClass: 'org.h2.Driver',
+    urlTemplate: 'jdbc:h2:tcp://localhost:9092/./mariner5',
+    username: 'scott',
+    password: 'tiger',
+    port: 9092
+  },
+  mysql: {
+    name: 'MySQL',
+    driverClass: 'org.gjt.mm.mysql.Driver',
+    urlTemplate: 'jdbc:mysql://127.0.0.1:3306/mariner5?useUnicode=true&characterEncoding=utf8',
+    username: 'root',
+    password: '',
+    port: 3306
+  },
+  mariadb: {
+    name: 'MariaDB',
+    driverClass: 'org.mariadb.jdbc.Driver',
+    urlTemplate: 'jdbc:mariadb://127.0.0.1:3306/mariner5?autoReconnect=true',
+    username: 'root',
+    password: '',
+    port: 3306
+  },
+  oracle: {
+    name: 'Oracle',
+    driverClass: 'oracle.jdbc.driver.OracleDriver',
+    urlTemplate: 'jdbc:oracle:thin:@127.0.0.1:1521:MARINER5',
+    username: 'scott',
+    password: 'tiger',
+    port: 1521
+  },
+  postgresql: {
+    name: 'PostgreSQL',
+    driverClass: 'org.postgresql.Driver',
+    urlTemplate: 'jdbc:postgresql://127.0.0.1/mariner5',
+    username: 'postgres',
+    password: '',
+    port: 5432
+  },
+  sqlserver: {
+    name: 'SQL Server',
+    driverClass: 'net.sourceforge.jtds.jdbc.Driver',
+    urlTemplate: 'jdbc:jtds:sqlserver://127.0.0.1:1433;DatabaseName=mariner5;SelectMethod=Cursor',
+    username: 'sa',
+    password: '',
+    port: 1433
+  }
+};
+
 // 서비스 설정 로드
 function loadServiceConfig() {
   try {
@@ -268,7 +330,314 @@ async function killProcess(pid) {
   }
 }
 
+// ======================== MPC 기능 ========================
+
+// Java 자동 감지 (Windows Registry)
+async function detectJavaHome() {
+  // 1. 환경변수 확인
+  if (process.env.JAVA_HOME && fs.existsSync(process.env.JAVA_HOME)) {
+    try {
+      const { stdout } = await execAsync(`"${path.join(process.env.JAVA_HOME, 'bin', 'java.exe')}" -version`);
+      return { found: true, path: process.env.JAVA_HOME, version: stdout.trim() };
+    } catch (err) {
+      // 무시하고 다음 방법 시도
+    }
+  }
+
+  // 2. which java (Linux/Mac)
+  try {
+    const { stdout } = await execAsync('which java');
+    const javaPath = stdout.trim();
+    if (javaPath) {
+      // java 경로에서 JAVA_HOME 추출 (예: /usr/bin/java -> /usr)
+      const javaHome = path.dirname(path.dirname(javaPath));
+      const { stdout: version } = await execAsync(`"${javaPath}" -version`);
+      return { found: true, path: javaHome, version: version.trim() };
+    }
+  } catch (err) {
+    // 무시하고 다음 방법 시도
+  }
+
+  // 3. Windows Registry 탐색
+  if (process.platform === 'win32') {
+    try {
+      const { stdout } = await execAsync('reg query "HKLM\\SOFTWARE\\JavaSoft\\Java Development Kit" /s');
+      const lines = stdout.split('\n');
+      for (const line of lines) {
+        if (line.includes('JavaHome')) {
+          const match = line.match(/JavaHome\s+REG_SZ\s+(.+)/);
+          if (match && fs.existsSync(match[1].trim())) {
+            const javaHome = match[1].trim();
+            const { stdout: version } = await execAsync(`"${path.join(javaHome, 'bin', 'java.exe')}" -version`);
+            return { found: true, path: javaHome, version: version.trim() };
+          }
+        }
+      }
+    } catch (err) {
+      // 무시
+    }
+  }
+
+  return { found: false, path: null, version: null };
+}
+
+// startup.properties 생성
+function generateStartupProperties(mariner5Home, options = {}) {
+  const debug = options.debug || false;
+  const timestamp = new Date().toISOString();
+
+  return `# Mariner5 Startup Configuration
+# 자동 생성됨: ${timestamp} (mariner5-mcp)
+
+# Mariner5 설치 경로
+ir.home=${mariner5Home.replace(/\\/g, '\\\\')}
+
+# 디버그 옵션
+ir.debug=${debug}
+ir.debug.sqlQuery=${debug}
+ir.debug.workerThread=${debug}
+ir.debug.searchResult=${debug}
+ir.debug.queryParsing=${debug}
+ir.debug.analyzer=${debug}
+ir.debug.indexing=${debug}
+ir.debug.collection=${debug}
+
+# 로그 레벨 (DEBUG, INFO, WARN, ERROR)
+ir.log.level=${debug ? 'DEBUG' : 'INFO'}
+
+# 서버 포트
+ir.admin.port=5555
+ir.web.port=8080
+
+# 메모리 설정 (MB)
+ir.memory.initial=512
+ir.memory.maximum=2048
+`;
+}
+
+// ir.rdbms.properties 생성
+function generateRdbmsProperties(rdbmsType, customConfig = {}) {
+  const template = RDBMS_TEMPLATES[rdbmsType];
+  if (!template) {
+    throw new Error(`Unsupported RDBMS type: ${rdbmsType}`);
+  }
+
+  const timestamp = new Date().toISOString();
+  const config = { ...template, ...customConfig };
+
+  return `# Mariner5 RDBMS Configuration
+# 자동 생성됨: ${timestamp} (mariner5-mcp)
+
+# 테이블 접두사
+ir.table.prefix IR5
+
+# JDBC 설정
+ir.jdbc.driver.class ${config.driverClass}
+ir.jdbc.username ${config.username}
+ir.jdbc.password ${config.password}
+ir.jdbc.url ${config.urlTemplate}
+
+# 커넥션 풀 설정
+ir.db.connection.pool true
+ir.db.connection.pool.timeout 3600000
+ir.db.connection.pool.minSize 5
+ir.db.connection.pool.maxSize 20
+
+# 암호화 설정
+ir.useEncryption false
+
+# 자동 재연결
+ir.db.autoReconnect true
+`;
+}
+
 export const setup = {
+  // ======================== MPC 도구 ========================
+
+  'setup.mpc.detectJava': {
+    handler: async (input) => {
+      const javaInfo = await detectJavaHome();
+      return ok('setup.mpc.detectJava', input, javaInfo);
+    }
+  },
+
+  'setup.mpc.listRdbms': {
+    handler: async (input) => {
+      const rdbmsList = Object.entries(RDBMS_TEMPLATES).map(([key, value]) => ({
+        key,
+        name: value.name,
+        port: value.port,
+        defaultUrl: value.urlTemplate
+      }));
+      return ok('setup.mpc.listRdbms', input, { rdbms: rdbmsList });
+    }
+  },
+
+  'setup.mpc.configure': {
+    handler: async (input) => {
+      const schema = {
+        type: 'object',
+        required: ['mariner5Home', 'rdbmsType'],
+        properties: {
+          mariner5Home: { type: 'string' },
+          javaHome: { type: 'string' },
+          rdbmsType: { type: 'string', enum: ['derby', 'h2', 'mysql', 'mariadb', 'oracle', 'postgresql', 'sqlserver'] },
+          rdbmsConfig: {
+            type: 'object',
+            properties: {
+              username: { type: 'string' },
+              password: { type: 'string' },
+              urlTemplate: { type: 'string' },
+              port: { type: 'integer' }
+            }
+          },
+          debug: { type: 'boolean', default: false }
+        }
+      };
+      makeValidator(schema)(input);
+
+      const { mariner5Home, javaHome, rdbmsType, rdbmsConfig = {}, debug = false } = input;
+
+      // 1. Mariner5 경로 검증
+      if (!fs.existsSync(mariner5Home)) {
+        return fail('E_MARINER5_NOT_FOUND', `Mariner5 경로를 찾을 수 없습니다: ${mariner5Home}`);
+      }
+
+      const serverManagerPath = path.join(mariner5Home, 'serverManager');
+      const rdbmsPath = path.join(mariner5Home, 'rdbms');
+
+      if (!fs.existsSync(serverManagerPath)) {
+        return fail('E_SERVERMANAGER_NOT_FOUND', `serverManager 디렉토리를 찾을 수 없습니다: ${serverManagerPath}`);
+      }
+
+      if (!fs.existsSync(rdbmsPath)) {
+        fs.mkdirSync(rdbmsPath, { recursive: true });
+      }
+
+      // 2. Java 경로 검증
+      let finalJavaHome = javaHome;
+      if (!finalJavaHome) {
+        const javaInfo = await detectJavaHome();
+        if (!javaInfo.found) {
+          return fail('E_JAVA_NOT_FOUND', 'Java를 찾을 수 없습니다. JAVA_HOME 환경변수를 설정하거나 javaHome 파라미터를 지정하세요');
+        }
+        finalJavaHome = javaInfo.path;
+      }
+
+      // 3. startup.properties 생성
+      const startupPropertiesPath = path.join(serverManagerPath, 'startup.properties');
+      const startupProperties = generateStartupProperties(mariner5Home, { debug });
+      fs.writeFileSync(startupPropertiesPath, startupProperties, 'utf-8');
+
+      // 4. ir.rdbms.properties 생성
+      const rdbmsPropertiesPath = path.join(rdbmsPath, 'ir.rdbms.properties');
+      const rdbmsProperties = generateRdbmsProperties(rdbmsType, rdbmsConfig);
+      fs.writeFileSync(rdbmsPropertiesPath, rdbmsProperties, 'utf-8');
+
+      // 5. 환경변수 설정 (선택사항 - 사용자가 직접 설정해야 함)
+      const envVars = {
+        JAVA_HOME: finalJavaHome,
+        IR5_HOME: mariner5Home,
+        MARINER5_HOME: mariner5Home
+      };
+
+      return ok('setup.mpc.configure', input, {
+        success: true,
+        files: {
+          startupProperties: startupPropertiesPath,
+          rdbmsProperties: rdbmsPropertiesPath
+        },
+        config: {
+          mariner5Home,
+          javaHome: finalJavaHome,
+          rdbmsType,
+          debug
+        },
+        environmentVariables: envVars,
+        message: 'Mariner5 설정 완료. 환경변수는 수동으로 설정하세요 (JAVA_HOME, IR5_HOME)'
+      });
+    }
+  },
+
+  'setup.mpc.verify': {
+    handler: async (input) => {
+      const schema = {
+        type: 'object',
+        properties: {
+          mariner5Home: { type: 'string' }
+        }
+      };
+      makeValidator(schema)(input);
+
+      const mariner5Home = input.mariner5Home || MARINER5_HOME;
+
+      const checks = [];
+
+      // 1. Mariner5 경로
+      const mariner5Exists = fs.existsSync(mariner5Home);
+      checks.push({
+        name: 'Mariner5 설치 경로',
+        path: mariner5Home,
+        status: mariner5Exists ? 'OK' : 'FAIL'
+      });
+
+      // 2. serverManager
+      const serverManagerPath = path.join(mariner5Home, 'serverManager');
+      const serverManagerExists = fs.existsSync(serverManagerPath);
+      checks.push({
+        name: 'serverManager 디렉토리',
+        path: serverManagerPath,
+        status: serverManagerExists ? 'OK' : 'FAIL'
+      });
+
+      // 3. startup.properties
+      const startupPropertiesPath = path.join(serverManagerPath, 'startup.properties');
+      const startupPropertiesExists = fs.existsSync(startupPropertiesPath);
+      checks.push({
+        name: 'startup.properties',
+        path: startupPropertiesPath,
+        status: startupPropertiesExists ? 'OK' : 'FAIL'
+      });
+
+      // 4. rdbms
+      const rdbmsPath = path.join(mariner5Home, 'rdbms');
+      const rdbmsExists = fs.existsSync(rdbmsPath);
+      checks.push({
+        name: 'rdbms 디렉토리',
+        path: rdbmsPath,
+        status: rdbmsExists ? 'OK' : 'FAIL'
+      });
+
+      // 5. ir.rdbms.properties
+      const rdbmsPropertiesPath = path.join(rdbmsPath, 'ir.rdbms.properties');
+      const rdbmsPropertiesExists = fs.existsSync(rdbmsPropertiesPath);
+      checks.push({
+        name: 'ir.rdbms.properties',
+        path: rdbmsPropertiesPath,
+        status: rdbmsPropertiesExists ? 'OK' : 'FAIL'
+      });
+
+      // 6. Java
+      const javaInfo = await detectJavaHome();
+      checks.push({
+        name: 'Java 설치',
+        path: javaInfo.path || 'N/A',
+        status: javaInfo.found ? 'OK' : 'FAIL',
+        version: javaInfo.version || 'N/A'
+      });
+
+      const allValid = checks.every(c => c.status === 'OK');
+
+      return ok('setup.mpc.verify', input, {
+        valid: allValid,
+        checks,
+        message: allValid ? '모든 검증 통과' : '일부 검증 실패'
+      });
+    }
+  },
+
+  // ======================== 기존 도구 ========================
+
   'setup.detect': {
     handler: async (input) => {
       const config = loadServiceConfig();
